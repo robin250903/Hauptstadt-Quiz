@@ -18,6 +18,8 @@ und als App installierbar (funktioniert danach auch offline).
   Schreibweise angezeigt. Akzente, Groß-/Kleinschreibung, Bindestriche und ä/ae sind egal.
   Auch englische und landessprachliche Namen werden akzeptiert (z. B. „Vienna“, „Beijing“).
 - **Anzeige:** Fortschritt (z. B. 27/41), Anzahl richtig, Quote in % und Zeit.
+- **Weiter per Knopfdruck:** Nach jeder Antwort bleibt die Auflösung stehen, bis man auf „Weiter“ tippt.
+  In dieser Zeit ist die Uhr angehalten – gemessen wird nur die Zeit zum Antworten.
 - **Bestenliste:** Die fünf besten Versuche je Kategorie werden gespeichert (beste Quote, bei
   Gleichstand schnellste Zeit).
 - **Pausieren:** Ein angefangenes Quiz wird automatisch gespeichert und kann später fortgesetzt werden.
