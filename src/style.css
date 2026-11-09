@@ -629,6 +629,18 @@ h3 {
   font-size: 1.02rem;
   white-space: nowrap;
 }
+.stat.paused b {
+  color: var(--muted);
+}
+.stat.paused b::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 10px;
+  border-left: 3px solid currentColor;
+  border-right: 3px solid currentColor;
+  margin-right: 6px;
+}
 
 .map-wrap {
   flex: 1;

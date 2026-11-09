@@ -13,7 +13,6 @@ let run = null; // laufendes Quiz
 let lastResult = null; // Ergebnis für den Ergebnis-Bildschirm
 let quizUi = null; // DOM-Referenzen des Quiz-Bildschirms
 let timerId = 0;
-let advanceId = 0;
 
 // ── Hilfsfunktionen ─────────────────────────────────────────────────
 const esc = (s) =>
@@ -323,16 +322,21 @@ function pauseTimer() {
     run.elapsed += performance.now() - run.segStart;
     run.segStart = 0;
   }
+  quizUi?.timeStat.classList.add('paused');
 }
 
+// Die Zeit läuft nur, solange eine Frage offen ist – nicht während die Lösung angezeigt wird
 function resumeTimer() {
-  if (run && !run.segStart && !document.hidden) run.segStart = performance.now();
+  if (run && !run.segStart && !document.hidden && run.phase !== 'feedback') run.segStart = performance.now();
+  quizUi?.timeStat.classList.toggle('paused', !run?.segStart);
 }
 
 function persistRun() {
   if (!run) return;
   const { segStart, phase, ...rest } = run;
-  store.saveRun({ ...rest, elapsed: elapsed() });
+  // Ist die aktuelle Frage schon beantwortet, geht es beim Fortsetzen mit der nächsten weiter
+  const index = phase === 'feedback' ? run.index + 1 : run.index;
+  store.saveRun({ ...rest, index, elapsed: elapsed() });
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -346,7 +350,6 @@ document.addEventListener('visibilitychange', () => {
 function leaveQuiz() {
   if (!quizUi) return;
   clearInterval(timerId);
-  clearTimeout(advanceId);
   if (run) {
     pauseTimer();
     persistRun();
@@ -424,6 +427,7 @@ async function renderQuiz() {
     correct: q('.s-correct'),
     pct: q('.s-pct'),
     time: q('.s-time'),
+    timeStat: q('.s-time').parentElement,
     map: null,
   };
   const ui = quizUi;
@@ -469,6 +473,7 @@ async function renderQuiz() {
   if (quizUi !== ui) return; // inzwischen verlassen
   ui.mapWrap.querySelector('.map-loading')?.remove();
   ui.map = new QuizMap(ui.mapWrap);
+  if (run.index >= run.ids.length) return finishQuiz();
   showQuestion();
   resumeTimer();
 }
@@ -511,6 +516,7 @@ function answer(value) {
   const ui = quizUi;
   const entry = ENTRY_BY_ID[run.ids[run.index]];
   const { result, match } = checkAnswer(value, entry, ENTRIES);
+  pauseTimer();
   run.answers.push({ id: entry.id, input: value.trim(), result, match });
   run.phase = 'feedback';
   ui.main.classList.add(`is-${result}`);
@@ -543,19 +549,15 @@ function answer(value) {
   ui.skip.textContent = 'Weiter';
   updateHud();
   persistRun();
-
-  if (result === 'exact') {
-    advanceId = setTimeout(() => run && run.phase === 'feedback' && nextQuestion(), 1100);
-  }
 }
 
 function nextQuestion() {
-  clearTimeout(advanceId);
   if (!run || run.phase !== 'feedback') return;
   run.index++;
   if (run.index >= run.ids.length) return finishQuiz();
-  persistRun();
   showQuestion();
+  persistRun();
+  resumeTimer();
 }
 
 function finishQuiz() {
