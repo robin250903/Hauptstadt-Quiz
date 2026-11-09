@@ -97,14 +97,13 @@ function scoreList(catKey, highlightDate) {
 
 // ── Router ──────────────────────────────────────────────────────────
 function render() {
-  const hash = location.hash || '#/';
-  const [, page, arg] = hash.split('/');
-  if (page !== 'quiz') leaveQuiz();
+  const hash = location.hash.slice(1) || 'start';
+  if (hash !== 'quiz') leaveQuiz();
   window.scrollTo(0, 0);
-  if (page === 'cat' && arg) return renderCategory(arg);
-  if (page === 'quiz') return renderQuiz();
-  if (page === 'result' && lastResult) return renderResult();
-  if (page === 'scores') return renderScores();
+  if (hash.startsWith('kategorie-')) return renderCategory(hash.slice('kategorie-'.length));
+  if (hash === 'quiz') return renderQuiz();
+  if (hash === 'ergebnis' && lastResult) return renderResult();
+  if (hash === 'bestenliste') return renderScores();
   return renderHome();
 }
 window.addEventListener('hashchange', render);
@@ -190,12 +189,12 @@ function renderHome() {
   root.onclick = async (e) => {
     const t = e.target.closest('[data-cat],[data-cont],[data-action]');
     if (!t) return;
-    if (t.dataset.cat) go(`#/cat/${t.dataset.cat}`);
-    else if (t.dataset.cont) go(`#/cat/${t.dataset.cont}-${contVariant(t.dataset.cont)}`);
-    else if (t.dataset.action === 'scores') go('#/scores');
+    if (t.dataset.cat) go(`#kategorie-${t.dataset.cat}`);
+    else if (t.dataset.cont) go(`#kategorie-${t.dataset.cont}-${contVariant(t.dataset.cont)}`);
+    else if (t.dataset.action === 'scores') go('#bestenliste');
     else if (t.dataset.action === 'resume') {
       run = { ...store.loadRun() };
-      go('#/quiz');
+      go('#quiz');
     } else if (t.dataset.action === 'discard') {
       const ok = await modal({
         title: 'Quiz verwerfen?',
@@ -216,7 +215,7 @@ function renderHome() {
 // ── Kategorie ───────────────────────────────────────────────────────
 function renderCategory(key) {
   const cat = CAT[key];
-  if (!cat) return go('#/');
+  if (!cat) return go('#start');
   const isCont = cat.group === 'continent';
   const sCat = isCont ? CAT[`${cat.cont}-s`] : null;
   const aCat = isCont ? CAT[`${cat.cont}-all`] : null;
@@ -263,11 +262,11 @@ function renderCategory(key) {
     if (!t) return;
     if (t.dataset.variant) {
       store.savePrefs({ [`variant-${cat.cont}`]: t.dataset.variant });
-      history.replaceState(null, '', `#/cat/${cat.cont}-${t.dataset.variant}`);
+      history.replaceState(null, '', `#kategorie-${cat.cont}-${t.dataset.variant}`);
       return render();
     }
     const a = t.dataset.action;
-    if (a === 'back') go('#/');
+    if (a === 'back') go('#start');
     else if (a === 'start') startQuiz(cat);
     else if (a === 'clear') {
       const ok = await modal({
@@ -311,7 +310,7 @@ async function startQuiz(cat, ids = cat.ids, practice = false) {
     elapsed: 0,
   };
   store.saveRun(run);
-  go('#/quiz');
+  go('#quiz');
 }
 
 // ── Quiz ────────────────────────────────────────────────────────────
@@ -359,7 +358,7 @@ function leaveQuiz() {
 async function renderQuiz() {
   if (!run) {
     const saved = store.loadRun();
-    if (!saved) return go('#/');
+    if (!saved) return go('#start');
     run = { ...saved };
   }
   document.body.classList.add('in-quiz');
@@ -569,7 +568,7 @@ function finishQuiz() {
   lastResult = { run, attempt, rank, first: before === 0 };
   store.clearRun();
   run = null;
-  go('#/result');
+  go('#ergebnis');
 }
 
 async function quitQuiz() {
@@ -586,11 +585,11 @@ async function quitQuiz() {
   if (choice === 'pause') {
     persistRun();
     run = null;
-    go('#/');
+    go('#start');
   } else if (choice === 'discard') {
     store.clearRun();
     run = null;
-    go('#/');
+    go('#start');
   } else {
     resumeTimer();
     if (matchMedia('(pointer: fine)').matches) quizUi?.input.focus();
@@ -665,7 +664,7 @@ function renderResult() {
     if (!t) return;
     const a = t.dataset.action;
     const base = cat || { key: r.catKey, title: r.title, subtitle: r.subtitle, color: r.color, ids: r.ids };
-    if (a === 'home') go('#/');
+    if (a === 'home') go('#start');
     else if (a === 'again') startQuiz(base, r.practice ? r.ids : base.ids, r.practice);
     else if (a === 'practice') startQuiz({ ...base, title: base.title }, wrong.map((w) => w.id), true);
   };
@@ -706,7 +705,7 @@ function renderScores() {
   root.onclick = async (e) => {
     const t = e.target.closest('[data-action]');
     if (!t) return;
-    if (t.dataset.action === 'home') go('#/');
+    if (t.dataset.action === 'home') go('#start');
     else if (t.dataset.action === 'clear-all') {
       const ok = await modal({
         title: 'Alle Bestenlisten löschen?',
