@@ -236,6 +236,10 @@ export const ENTRIES = [
 
   // ───────────────────────── Besondere Gebiete ─────────────────────────
   // Europa
+  { id: 'gb-eng', name: 'England', cont: 'eu', type: T, cap: 'London', ll: [51.51, -0.13], geo: 'England' },
+  { id: 'gb-sct', name: 'Schottland', cont: 'eu', type: T, cap: 'Edinburgh', ans: ['Edinburg', 'Dùn Èideann'], ll: [55.95, -3.19], geo: 'Scotland' },
+  { id: 'gb-wls', name: 'Wales', cont: 'eu', type: T, cap: 'Cardiff', ans: ['Caerdydd'], ll: [51.48, -3.18], geo: 'Wales' },
+  { id: 'gb-nir', name: 'Nordirland', cont: 'eu', type: T, cap: 'Belfast', ans: ['Béal Feirste'], ll: [54.6, -5.93], geo: 'N. Ireland' },
   { id: 'ax', name: 'Åland', cont: 'eu', type: T, cap: 'Mariehamn', ll: [60.1, 19.94], geo: 'Åland' },
   { id: 'fo', name: 'Färöer', cont: 'eu', type: T, cap: 'Tórshavn', ans: ['Torshavn', 'Thorshavn'], ll: [62.01, -6.77], geo: 'Faeroe Is.' },
   { id: 'gi', name: 'Gibraltar', cont: 'eu', type: T, cap: 'Gibraltar', ll: [36.14, -5.35], geo: 'Gibraltar' },
@@ -354,7 +358,7 @@ export function buildCategories() {
     key: 'world-t',
     group: 'world',
     title: 'Besondere Gebiete',
-    subtitle: 'Überseegebiete, abhängige & umstrittene Gebiete',
+    subtitle: 'Landesteile, Überseegebiete, abhängige & umstrittene Gebiete',
     emoji: '🧭',
     color: '#d9643a',
     ids: ENTRIES.filter((e) => e.type === T).map((e) => e.id),

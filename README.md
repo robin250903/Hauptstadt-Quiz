@@ -7,10 +7,10 @@ und als App installierbar (funktioniert danach auch offline).
 
 - **Kategorien:** Europa, Asien, Afrika, Nordamerika, Südamerika, Ozeanien – jeweils „Nur Staaten“
   oder „Mit Gebieten“. Dazu drei weltweite Modi:
-  - **Die ganze Welt** – alle 254 Länder und Gebiete
+  - **Die ganze Welt** – alle 258 Länder und Gebiete
   - **Souveräne Staaten** – 197 Staaten (193 UN-Mitglieder + Vatikanstadt, Palästina, Kosovo, Taiwan)
-  - **Besondere Gebiete** – 57 Überseegebiete, abhängige und umstrittene Gebiete (z. B. Grönland,
-    Färöer, Réunion, Westsahara, Transnistrien)
+  - **Besondere Gebiete** – 61 Landesteile, Überseegebiete, abhängige und umstrittene Gebiete
+    (z. B. England, Schottland, Grönland, Färöer, Réunion, Westsahara, Transnistrien)
 - **Jede Frage** zeigt einen Kartenausschnitt mit dem markierten Land, einem Pin an der Hauptstadt,
   einem kleinen Globus zur Orientierung und der Flagge. Die Karte lässt sich verschieben und zoomen.
 - **Tippfehler zählen:** Ist die Hauptstadt erkennbar, aber falsch geschrieben, gilt die Antwort als

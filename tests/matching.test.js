@@ -19,6 +19,12 @@ test('richtige Antworten, auch ohne Akzente und in anderen Sprachen', () => {
   assert.equal(check('La Paz', 'bo'), 'exact');
   assert.equal(check('Ramallah', 'ps'), 'exact');
   assert.equal(check('Chisinau', 'md'), 'exact');
+  assert.equal(check('London', 'gb-eng'), 'exact');
+  assert.equal(check('Edinburgh', 'gb-sct'), 'exact');
+  assert.equal(check('Edinburg', 'gb-sct'), 'exact');
+  assert.equal(check('Cardif', 'gb-wls'), 'close');
+  assert.equal(check('Belfast', 'gb-nir'), 'exact');
+  assert.equal(check('Dublin', 'gb-nir'), 'wrong');
 });
 
 test('Tippfehler zählen als fast richtig', () => {
