@@ -7,10 +7,15 @@ und als App installierbar (funktioniert danach auch offline).
 
 - **Kategorien:** Europa, Asien, Afrika, Nordamerika, Südamerika, Ozeanien – jeweils „Nur Staaten“
   oder „Mit Gebieten“. Dazu drei weltweite Modi:
-  - **Die ganze Welt** – alle 258 Länder und Gebiete
+  - **Die ganze Welt** – alle 279 Länder und Gebiete
   - **Souveräne Staaten** – 197 Staaten (193 UN-Mitglieder + Vatikanstadt, Palästina, Kosovo, Taiwan)
-  - **Besondere Gebiete** – 61 Landesteile, Überseegebiete, abhängige und umstrittene Gebiete
-    (z. B. England, Schottland, Grönland, Färöer, Réunion, Westsahara, Transnistrien)
+  - **Besondere Gebiete** – 82 Landesteile, Überseegebiete, autonome und umstrittene Gebiete
+    (z. B. England, Grönland, Färöer, Réunion, Kanarische Inseln, Sansibar, Irakisch-Kurdistan,
+    Westsahara, Transnistrien, Krim)
+
+  Nicht enthalten sind Gebiete ohne Hauptstadt oder Verwaltungssitz (z. B. Antarktis, Bouvetinsel,
+  Clipperton, Heard und McDonaldinseln, die unbewohnten US-Außeninseln) sowie gewöhnliche
+  Bundesländer, Provinzen und Teilrepubliken (z. B. Bayern, Texas, Tatarstan, Tibet).
 - **Jede Frage** zeigt einen Kartenausschnitt mit dem markierten Land, einem Pin an der Hauptstadt,
   einem kleinen Globus zur Orientierung und der Flagge. Die Karte lässt sich verschieben und zoomen.
 - **Tippfehler zählen:** Ist die Hauptstadt erkennbar, aber falsch geschrieben, gilt die Antwort als
@@ -48,5 +53,8 @@ Einmalig nötig: im Repository unter **Settings → Pages → Build and deployme
 
 - Kartendaten: [Natural Earth](https://www.naturalearthdata.com/) (gemeinfrei),
   über [world-atlas](https://github.com/topojson/world-atlas)
-- Flaggen: [flag-icons](https://github.com/lipis/flag-icons) (MIT-Lizenz); Flaggen von Somaliland,
-  Transnistrien, Abchasien, Südossetien, Nordzypern, Saba und Sint Eustatius vereinfacht selbst gezeichnet
+- Flaggen: [flag-icons](https://github.com/lipis/flag-icons) (MIT-Lizenz); Ceuta und Melilla aus
+  [region-flags](https://github.com/fonttools/region-flags) (gemeinfrei); die übrigen Gebietsflaggen in
+  `scripts/flags` sind vereinfacht selbst gezeichnet
+- Zusätzliche Gebietsformen (Landesteile, autonome Regionen) stammen ebenfalls aus Natural Earth und
+  wurden mit `scripts/extract-extra.mjs` nach `scripts/source/extra.geojson` übernommen
