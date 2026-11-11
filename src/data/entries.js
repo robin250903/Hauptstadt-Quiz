@@ -236,6 +236,10 @@ export const ENTRIES = [
 
   // ───────────────────────── Besondere Gebiete ─────────────────────────
   // Europa
+  { id: 'gb-eng', name: 'England', cont: 'eu', type: T, cap: 'London', ll: [51.51, -0.13], geo: 'England' },
+  { id: 'gb-sct', name: 'Schottland', cont: 'eu', type: T, cap: 'Edinburgh', ans: ['Edinburg', 'Dùn Èideann'], ll: [55.95, -3.19], geo: 'Scotland' },
+  { id: 'gb-wls', name: 'Wales', cont: 'eu', type: T, cap: 'Cardiff', ans: ['Caerdydd'], ll: [51.48, -3.18], geo: 'Wales' },
+  { id: 'gb-nir', name: 'Nordirland', cont: 'eu', type: T, cap: 'Belfast', ans: ['Béal Feirste'], ll: [54.6, -5.93], geo: 'N. Ireland' },
   { id: 'ax', name: 'Åland', cont: 'eu', type: T, cap: 'Mariehamn', ll: [60.1, 19.94], geo: 'Åland' },
   { id: 'fo', name: 'Färöer', cont: 'eu', type: T, cap: 'Tórshavn', ans: ['Torshavn', 'Thorshavn'], ll: [62.01, -6.77], geo: 'Faeroe Is.' },
   { id: 'gi', name: 'Gibraltar', cont: 'eu', type: T, cap: 'Gibraltar', ll: [36.14, -5.35], geo: 'Gibraltar' },
@@ -303,6 +307,36 @@ export const ENTRIES = [
   { id: 'wf', name: 'Wallis und Futuna', cont: 'oc', type: T, cap: 'Mata-Utu', ans: ['Matāʻutu', 'Mata Utu', 'Matautu'], ll: [-13.28, -176.17], geo: 'Wallis and Futuna Is.' },
   { id: 'pn', name: 'Pitcairninseln', cont: 'oc', type: T, cap: 'Adamstown', ll: [-25.07, -130.1], geo: 'Pitcairn Is.', r: 50 },
   { id: 'nf', name: 'Norfolkinsel', cont: 'oc', type: T, cap: 'Kingston', ll: [-29.06, 167.96], geo: 'Norfolk Island' },
+  { id: 'tk', name: 'Tokelau', cont: 'oc', type: T, cap: 'Fakaofo / Nukunonu / Atafu', ll: [-9.38, -171.22], geo: 'Tokelau' },
+  { id: 'x-bougainville', name: 'Bougainville', cont: 'oc', type: T, cap: 'Buka', ans: ['Arawa'], ll: [-5.43, 154.67], geo: 'Bougainville' },
+  { id: 'x-easter', name: 'Osterinsel', cont: 'oc', type: T, cap: 'Hanga Roa', ll: [-27.15, -109.43], geo: 'Chile', r: 150 },
+
+  // Weitere Sonder- und autonome Gebiete
+  // Europa
+  { id: 'x-alderney', name: 'Alderney', cont: 'eu', type: T, cap: 'St. Anne', ans: ['Saint Anne', 'Sainte Anne'], ll: [49.71, -2.2], geo: 'Guernsey', r: 15 },
+  { id: 'x-azores', name: 'Azoren', cont: 'eu', type: T, cap: 'Ponta Delgada', ans: ['Angra do Heroísmo', 'Horta'], ll: [37.74, -25.67], geo: 'Azores' },
+  { id: 'x-gagauzia', name: 'Gagausien', cont: 'eu', type: T, cap: 'Comrat', ans: ['Komrat'], ll: [46.3, 28.66], geo: 'Gagauzia' },
+  { id: 'x-crimea', name: 'Krim', cont: 'eu', type: T, cap: 'Simferopol', ans: ['Simferopolj', 'Aqmescit'], ll: [44.95, 34.1], geo: 'Crimea' },
+  { id: 'x-athos', name: 'Berg Athos', cont: 'eu', type: T, cap: 'Karyes', ans: ['Karies', 'Karyai', 'Karyès'], ll: [40.26, 24.25], geo: 'Mount Athos' },
+
+  // Afrika
+  { id: 'ic', name: 'Kanarische Inseln', cont: 'af', type: T, cap: 'Santa Cruz de Tenerife / Las Palmas de Gran Canaria', ans: ['Santa Cruz', 'Las Palmas'], ll: [28.47, -16.25], geo: 'Spain', r: 400 },
+  { id: 'x-madeira', name: 'Madeira', cont: 'af', type: T, cap: 'Funchal', ll: [32.65, -16.91], geo: 'Madeira' },
+  { id: 'x-ceuta', name: 'Ceuta', cont: 'af', type: T, cap: 'Ceuta', ll: [35.89, -5.32], geo: 'Ceuta' },
+  { id: 'x-melilla', name: 'Melilla', cont: 'af', type: T, cap: 'Melilla', ll: [35.29, -2.94], geo: 'Melilla' },
+  { id: 'x-zanzibar', name: 'Sansibar', cont: 'af', type: T, cap: 'Sansibar-Stadt', ans: ['Zanzibar City', 'Sansibar', 'Zanzibar', 'Stone Town'], ll: [-6.17, 39.2], geo: 'Zanzibar' },
+  { id: 'x-puntland', name: 'Puntland', cont: 'af', type: T, cap: 'Garowe', ans: ['Garoowe'], ll: [8.4, 48.48], geo: 'Puntland' },
+
+  // Asien
+  { id: 'io', name: 'Britisches Territorium im Indischen Ozean', cont: 'as', type: T, cap: 'Diego Garcia', ll: [-7.31, 72.41], geo: 'Br. Indian Ocean Ter.', r: 500 },
+  { id: 'x-kurdistan', name: 'Irakisch-Kurdistan', cont: 'as', type: T, cap: 'Erbil', ans: ['Arbil', 'Irbil', 'Hewlêr', 'Hawler'], ll: [36.19, 44.01], geo: 'Iraqi Kurdistan' },
+  { id: 'x-nakhchivan', flag: 'az', name: 'Nachitschewan', cont: 'as', type: T, cap: 'Nachitschewan', ans: ['Naxçıvan', 'Nakhchivan', 'Nachitschewan-Stadt'], ll: [39.21, 45.41], geo: 'Nakhchivan' },
+  { id: 'x-adjara', name: 'Adscharien', cont: 'as', type: T, cap: 'Batumi', ll: [41.64, 41.64], geo: 'Adjara' },
+  { id: 'x-karakalpakstan', name: 'Karakalpakistan', cont: 'as', type: T, cap: 'Nukus', ll: [42.46, 59.6], geo: 'Karakalpakstan' },
+  { id: 'x-bangsamoro', name: 'Bangsamoro', cont: 'as', type: T, cap: 'Cotabato City', ans: ['Cotabato'], ll: [7.22, 124.25], geo: 'Bangsamoro' },
+
+  // Südamerika
+  { id: 'x-galapagos', name: 'Galápagos-Inseln', cont: 'sa', type: T, cap: 'Puerto Baquerizo Moreno', ans: ['Baquerizo Moreno'], ll: [-0.9, -89.61], geo: 'Ecuador', r: 400 },
 ];
 
 export const ENTRY_BY_ID = Object.fromEntries(ENTRIES.map((e) => [e.id, e]));
@@ -354,7 +388,7 @@ export function buildCategories() {
     key: 'world-t',
     group: 'world',
     title: 'Besondere Gebiete',
-    subtitle: 'Überseegebiete, abhängige & umstrittene Gebiete',
+    subtitle: 'Landesteile, Überseegebiete, autonome & umstrittene Gebiete',
     emoji: '🧭',
     color: '#d9643a',
     ids: ENTRIES.filter((e) => e.type === T).map((e) => e.id),

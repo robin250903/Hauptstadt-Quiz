@@ -19,6 +19,20 @@ test('richtige Antworten, auch ohne Akzente und in anderen Sprachen', () => {
   assert.equal(check('La Paz', 'bo'), 'exact');
   assert.equal(check('Ramallah', 'ps'), 'exact');
   assert.equal(check('Chisinau', 'md'), 'exact');
+  assert.equal(check('London', 'gb-eng'), 'exact');
+  assert.equal(check('Edinburgh', 'gb-sct'), 'exact');
+  assert.equal(check('Edinburg', 'gb-sct'), 'exact');
+  assert.equal(check('Cardif', 'gb-wls'), 'close');
+  assert.equal(check('Belfast', 'gb-nir'), 'exact');
+  assert.equal(check('Dublin', 'gb-nir'), 'wrong');
+  assert.equal(check('Las Palmas', 'ic'), 'exact');
+  assert.equal(check('Santa Cruz de Tenerife', 'ic'), 'exact');
+  assert.equal(check('Nukunonu', 'tk'), 'exact');
+  assert.equal(check('Erbil', 'x-kurdistan'), 'exact');
+  assert.equal(check('Zanzibar City', 'x-zanzibar'), 'exact');
+  assert.equal(check('Ceuta', 'x-ceuta'), 'exact');
+  assert.equal(check('Hanga Roa', 'x-easter'), 'exact');
+  assert.equal(check('Funchal', 'x-azores'), 'wrong');
 });
 
 test('Tippfehler zählen als fast richtig', () => {
@@ -58,6 +72,7 @@ test('Kategorien und Daten sind vollständig', () => {
   const cats = buildCategories();
   const byKey = Object.fromEntries(cats.map((c) => [c.key, c]));
   assert.equal(byKey['world-s'].ids.length, 197);
+  assert.equal(byKey['world-t'].ids.length, 82);
   assert.equal(byKey['world-all'].ids.length, byKey['world-s'].ids.length + byKey['world-t'].ids.length);
   for (const e of ENTRIES) {
     assert.ok(e.ll[0] >= -90 && e.ll[0] <= 90, e.name);
