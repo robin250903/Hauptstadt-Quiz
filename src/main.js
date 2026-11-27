@@ -182,6 +182,7 @@ function renderHome() {
 
     <section class="home-footer">
       <button class="btn ghost" data-action="scores">🏆 Alle Bestenlisten</button>
+      <a class="btn ghost geo-link" href="geo/">🧭 Geo-Trainer für GeoGuessr</a>
     </section>
   </main>`;
 

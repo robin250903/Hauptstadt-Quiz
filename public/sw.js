@@ -11,7 +11,7 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('hauptstadt-quiz') && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
@@ -19,6 +19,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+  // Der Geo-Trainer im Unterordner geo/ hat seinen eigenen Service Worker
+  if (req.url.startsWith(new URL('geo/', self.registration.scope).href)) return;
 
   if (req.mode === 'navigate') {
     event.respondWith(

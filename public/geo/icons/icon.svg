@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#14b886"/><stop offset="1" stop-color="#2f6fd8"/></linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b4150"/><stop offset="1" stop-color="#22262f"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="178" fill="#fff" opacity=".14"/>
+  <path d="M226 150h60l78 270H148z" fill="url(#road)"/>
+  <path d="M252 168h8l4 40h-16zM249 236h14l5 56h-24zM245 324h22l7 80h-36z" fill="#ffd21f"/>
+  <path d="M148 420l78-270h8l-66 270z" fill="#fff" opacity=".9"/>
+  <path d="M364 420l-78-270h-8l66 270z" fill="#fff" opacity=".9"/>
+  <g transform="translate(372 150)">
+    <rect x="-13" y="0" width="26" height="128" rx="5" fill="#fff"/>
+    <path d="M-13 0h26v38l-26 10z" fill="#151515"/>
+    <rect x="-7" y="12" width="14" height="14" rx="2" fill="#e0262b"/>
+  </g>
+  <g transform="translate(150 98)">
+    <path d="M0 96C-12 62-44 46-44 10a44 44 0 1 1 88 0C44 46 12 62 0 96Z" fill="#e5484d" stroke="#fff" stroke-width="8"/>
+    <circle cx="0" cy="10" r="16" fill="#fff"/>
+  </g>
+</svg>
