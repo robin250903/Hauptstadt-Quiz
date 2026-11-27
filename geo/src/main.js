@@ -7,6 +7,8 @@ import { REGIONS } from './data/regions.js';
 import { BASICS } from './data/basics.js';
 import { renderVisual } from './visuals.js';
 import { PHOTOS } from './data/photos.js';
+import { STREETVIEW } from './data/streetview.js';
+import { MAPS_EMBED_KEY } from './config.js';
 import { loadShapes, countryMapSvg } from './countrymap.js';
 import * as quiz from './quiz.js';
 import * as store from './storage.js';
@@ -87,6 +89,41 @@ function scoreList(key, highlightDate) {
 
 const best = (key) => store.getScores(key)[0] || null;
 
+/** Street-View-Ort zu einem Merkmal: eingebettet (mit Schlüssel) oder als Link zu Google Maps */
+function svUrls(sv) {
+  const fov = Math.max(30, Math.min(100, sv.fov || 75));
+  const embed = MAPS_EMBED_KEY
+    ? `https://www.google.com/maps/embed/v1/streetview?key=${encodeURIComponent(MAPS_EMBED_KEY)}&${sv.pano ? `pano=${sv.pano}` : `location=${sv.lat},${sv.lng}`}&heading=${sv.h}&pitch=${sv.p}&fov=${fov}`
+    : null;
+  const link = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${sv.lat},${sv.lng}&heading=${sv.h}&pitch=${sv.p}&fov=${fov}${sv.pano ? `&pano=${sv.pano}` : ''}`;
+  return { embed, link };
+}
+
+function svButton(key, label = '🌍 In Street View ansehen') {
+  const sv = STREETVIEW[key];
+  if (!sv) return '';
+  const { embed, link } = svUrls(sv);
+  return embed
+    ? `<button class="btn ghost small sv-btn" data-sv="${esc(key)}" type="button">${label}</button>`
+    : `<a class="btn ghost small sv-btn" href="${esc(link)}" target="_blank" rel="noopener">${label}</a>`;
+}
+
+function svFrame(key) {
+  const { embed, link } = svUrls(STREETVIEW[key]);
+  return `<div class="sv-frame"><iframe src="${esc(embed)}" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" title="Street View"></iframe>
+    <a class="sv-open" href="${esc(link)}" target="_blank" rel="noopener">In Google Maps öffnen ↗</a></div>`;
+}
+
+/** Klick auf einen Street-View-Knopf: Ansicht an Ort und Stelle einblenden */
+function openStreetView(btn) {
+  const key = btn.dataset.sv;
+  const host = btn.closest('[data-sv-host]');
+  if (!host || !STREETVIEW[key]) return;
+  host.querySelector('.sv-frame')?.remove();
+  btn.insertAdjacentHTML('afterend', svFrame(key));
+  btn.remove();
+}
+
 /** Echtes Foto (Wikimedia Commons) mit Bildnachweis – sonst die Zeichnung */
 function media(key, v, { credit = true } = {}) {
   const ph = PHOTOS[key];
@@ -110,12 +147,13 @@ function countryChips(ids, link = true) {
 
 function itemCard(cat, it, highlight) {
   return `
-    <article class="learn-card" style="--c:${cat.color}">
+    <article class="learn-card" style="--c:${cat.color}" data-sv-host>
       <div class="lc-visual ${PHOTOS[`${cat.id}:${it.id}`] ? 'has-photo' : ''}">${media(`${cat.id}:${it.id}`, it.v)}</div>
       <div class="lc-body">
         <div class="lc-cap">${esc(it.cap)}</div>
         ${highlight ? `<div class="lc-cat">${cat.emoji} ${esc(cat.title)}</div>` : countryChips(it.c)}
         <p>${esc(it.text)}</p>
+        ${svButton(`${cat.id}:${it.id}`)}
       </div>
     </article>`;
 }
@@ -138,6 +176,16 @@ function render() {
   return renderHome();
 }
 window.addEventListener('hashchange', render);
+document.addEventListener(
+  'click',
+  (e) => {
+    const b = e.target.closest('button[data-sv]');
+    if (!b) return;
+    e.stopPropagation();
+    openStreetView(b);
+  },
+  true,
+);
 
 // ── Startseite ──────────────────────────────────────────────────────
 function renderHome() {
@@ -681,6 +729,7 @@ function answer(i) {
         <div class="fb-title">${ok ? 'Richtig!' : `Leider falsch – richtig ist ${esc(right.label)}`}</div>
         <div class="fb-explain">${esc(qq.explain)}</div>
         ${also}
+        <div class="fb-sv" data-sv-host>${svButton(qq.key, '🌍 Echtes Beispiel in Street View')}</div>
       </div>
     </div>
     <button class="btn primary big next" data-action="next">${run.index + 1 >= run.qs.length ? 'Zum Ergebnis' : 'Weiter →'}</button>`;

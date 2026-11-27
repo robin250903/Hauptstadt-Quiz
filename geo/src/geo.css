@@ -736,3 +736,36 @@ a.btn {
 .sources a {
   color: var(--primary);
 }
+
+/* ── Street View ─────────────────────────────────────────── */
+.sv-btn {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--text);
+}
+.fb-sv .sv-btn {
+  margin-top: 8px;
+}
+.sv-frame {
+  margin-top: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-2);
+  position: relative;
+}
+.sv-frame iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 0;
+}
+.sv-open {
+  display: block;
+  font-size: 0.78rem;
+  padding: 5px 8px;
+  text-align: right;
+  color: var(--muted);
+}
