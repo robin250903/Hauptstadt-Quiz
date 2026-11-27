@@ -50,6 +50,12 @@ Hauptstadt-Quiz aus verlinkt.
   Angaben dazu in `geo/src/data/photos.js`. Wo es kein passendes freies Foto gibt, zeigt die App eine
   vereinfachte Zeichnung aus `geo/src/visuals.js`.
 
+- **Street View:** 67 Lernkarten verlinken auf einen echten Street-View-Ort, an dem das Merkmal zu sehen ist
+  (Orte aus den Länder-Guides von Plonk It, gespeichert in `geo/src/data/streetview.js`). Mit einem
+  Schlüssel für die Google **Maps Embed API** in `geo/src/config.js` wird Street View direkt in der App
+  angezeigt – den Schlüssel in der Google Cloud Console auf die eigene Website und die Maps Embed API
+  beschränken. Ohne Schlüssel öffnet der Knopf Google Maps.
+
 Die Lerninhalte sind mit den Guides von [Plonk It](https://www.plonkit.net/) (CC BY-NC-SA 4.0) und
 [GeoHints](https://geohints.com/) abgeglichen; die Texte sind eigene Zusammenfassungen.
 Die Lerninhalte stehen in `geo/src/data/` (`countries.js`, `categories.js`, `regions.js`, `basics.js`).
