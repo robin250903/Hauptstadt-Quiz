@@ -45,8 +45,10 @@ Hauptstadt-Quiz aus verlinkt.
   erkennt (z. B. USA: gebirgiger Westen, flache Great Plains, rote Erde im Südosten). Dazu je ein Regionen-Quiz.
 - **Quiz:** Multiple Choice mit Zeichnung und Erklärung nach jeder Antwort, Mix-Quiz über alle Kategorien,
   Bestenliste (Top 5), Pausieren und Fortsetzen, Fehler üben und Lernfortschritt pro Kategorie.
-- Die Illustrationen (Poller, Masten, Straßen, Kennzeichen, Schilder) werden in `geo/src/visuals.js` als
-  vereinfachte SVG-Zeichnungen erzeugt. Sie zeigen die typischen Merkmale, keine Fotos.
+- **Echte Fotos** von [Wikimedia Commons](https://commons.wikimedia.org/) (freie Lizenzen, Urheber und Lizenz
+  stehen unter jedem Bild und auf der Seite „Bildnachweise“). Die Bilder liegen in `public/geo/img/`, die
+  Angaben dazu in `geo/src/data/photos.js`. Wo es kein passendes freies Foto gibt, zeigt die App eine
+  vereinfachte Zeichnung aus `geo/src/visuals.js`.
 
 Die Lerninhalte sind mit den Guides von [Plonk It](https://www.plonkit.net/) (CC BY-NC-SA 4.0) und
 [GeoHints](https://geohints.com/) abgeglichen; die Texte sind eigene Zusammenfassungen.

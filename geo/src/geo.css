@@ -660,3 +660,79 @@ a.btn {
   margin: 4px 4px 0;
   line-height: 1.45;
 }
+
+/* ── Fotos ───────────────────────────────────────────────── */
+.lc-visual.has-photo {
+  padding: 0;
+  display: block;
+}
+.photo {
+  margin: 0;
+  width: 100%;
+  position: relative;
+}
+.photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  background: var(--bg-2);
+}
+.q-visual .photo img {
+  border-radius: 12px;
+  max-height: 340px;
+  object-fit: contain;
+}
+.photo figcaption {
+  font-size: 0.68rem;
+  color: var(--muted);
+  padding: 4px 8px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.photo figcaption a {
+  color: inherit;
+}
+.m-vis .photo img {
+  height: 48px;
+  max-height: 48px;
+  border-radius: 6px;
+}
+.credits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.credits li {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.82rem;
+}
+.credits li:first-child {
+  border-top: 0;
+}
+.credits img {
+  width: 64px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex: none;
+}
+.credits div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.credits span {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.sources a {
+  color: var(--primary);
+}

@@ -6,6 +6,7 @@ import { CATEGORIES, CATEGORY_BY_ID } from './data/categories.js';
 import { REGIONS } from './data/regions.js';
 import { BASICS } from './data/basics.js';
 import { renderVisual } from './visuals.js';
+import { PHOTOS } from './data/photos.js';
 import { loadShapes, countryMapSvg } from './countrymap.js';
 import * as quiz from './quiz.js';
 import * as store from './storage.js';
@@ -86,6 +87,15 @@ function scoreList(key, highlightDate) {
 
 const best = (key) => store.getScores(key)[0] || null;
 
+/** Echtes Foto (Wikimedia Commons) mit Bildnachweis – sonst die Zeichnung */
+function media(key, v, { credit = true } = {}) {
+  const ph = PHOTOS[key];
+  if (!ph) return renderVisual(v);
+  return `<figure class="photo"><img src="img/${ph.file}" alt="" loading="lazy" width="${ph.w}" height="${ph.h}" />${
+    credit ? `<figcaption>Foto: ${esc(ph.author || 'unbekannt')} · <a href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.license)}</a></figcaption>` : ''
+  }</figure>`;
+}
+
 function masteryBar(keys) {
   const { done, total } = store.mastery(keys);
   return `<div class="mastery"><div class="m-bar"><div style="width:${total ? (done / total) * 100 : 0}%"></div></div><span>${done}/${total} gelernt</span></div>`;
@@ -101,7 +111,7 @@ function countryChips(ids, link = true) {
 function itemCard(cat, it, highlight) {
   return `
     <article class="learn-card" style="--c:${cat.color}">
-      <div class="lc-visual">${renderVisual(it.v)}</div>
+      <div class="lc-visual ${PHOTOS[`${cat.id}:${it.id}`] ? 'has-photo' : ''}">${media(`${cat.id}:${it.id}`, it.v)}</div>
       <div class="lc-body">
         <div class="lc-cap">${esc(it.cap)}</div>
         ${highlight ? `<div class="lc-cat">${cat.emoji} ${esc(cat.title)}</div>` : countryChips(it.c)}
@@ -121,6 +131,7 @@ function render() {
   if (hash.startsWith('land-')) return renderCountry(hash.slice(5));
   if (hash === 'laender') return renderCountries();
   if (hash === 'grundlagen') return renderBasics();
+  if (hash === 'bildnachweise') return renderCredits();
   if (hash === 'quiz') return renderQuiz();
   if (hash === 'ergebnis' && lastResult) return renderResult();
   if (hash === 'bestenliste') return renderScores();
@@ -232,13 +243,36 @@ function renderBasics() {
         <ul class="look">${b.points.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
       </section>`,
     ).join('')}
-    <p class="sources">Quellen der Lerninhalte: <a href="https://www.plonkit.net/" target="_blank" rel="noopener">Plonk It</a> und <a href="https://geohints.com/" target="_blank" rel="noopener">GeoHints</a> – die Texte sind eigene Zusammenfassungen, die Zeichnungen vereinfacht. Dort findest du Fotos zu jedem Merkmal.</p>
+    <p class="sources">Quellen der Lerninhalte: <a href="https://www.plonkit.net/" target="_blank" rel="noopener">Plonk It</a> und <a href="https://geohints.com/" target="_blank" rel="noopener">GeoHints</a> – die Texte sind eigene Zusammenfassungen, die Zeichnungen vereinfacht. Dort findest du Fotos zu jedem Merkmal. Die Fotos in dieser App stammen von Wikimedia Commons – <a href="#bildnachweise">Bildnachweise</a>.</p>
     <h2 class="section-title">Weiter mit</h2>
     <section class="cont-grid">
       ${CATEGORIES.slice(0, 6)
         .map((c) => `<button class="cont-card" style="--c:${c.color}" data-go="#kategorie-${c.id}"><span class="cc-emoji">${c.emoji}</span><span class="cc-title">${esc(c.title)}</span><span class="cc-sub">${esc(c.sub)}</span></button>`)
         .join('')}
     </section>
+  </main>`;
+  root.onclick = (e) => {
+    const t = e.target.closest('[data-go]');
+    if (t) go(t.dataset.go);
+  };
+}
+
+// ── Bildnachweise ───────────────────────────────────────────────────
+function renderCredits() {
+  const rows = CATEGORIES.filter((c) => c.kind === 'items').flatMap((c) =>
+    c.items.filter((it) => PHOTOS[`${c.id}:${it.id}`]).map((it) => ({ c, it, ph: PHOTOS[`${c.id}:${it.id}`] })),
+  );
+  root.innerHTML = `
+  <main class="category geo" style="--c:#0f9d74">
+    <header class="cat-head"><button class="icon-btn" data-go="#grundlagen" aria-label="Zurück">←</button><h1>Bildnachweise</h1></header>
+    <p class="lead">Alle Fotos stammen von Wikimedia Commons und stehen unter freien Lizenzen. Sie wurden verkleinert, sonst aber nicht verändert.</p>
+    <section class="panel"><ul class="credits">${rows
+      .map(
+        ({ c, it, ph }) => `<li><img src="img/${ph.file}" alt="" loading="lazy" /><div><b>${c.emoji} ${esc(it.cap)}</b>
+          <span>${esc(ph.title.replace(/^File:/, ''))}</span>
+          <span>Foto: ${esc(ph.author || 'unbekannt')} · <a href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.license)}</a></span></div></li>`,
+      )
+      .join('')}</ul></section>
   </main>`;
   root.onclick = (e) => {
     const t = e.target.closest('[data-go]');
@@ -602,7 +636,7 @@ function showQuestion() {
   } else if (qq.subject) {
     ui.visual.innerHTML = `<img class="q-flag" src="${flagUrl(qq.subject)}" alt="" />`;
   } else {
-    ui.visual.innerHTML = renderVisual(qq.v);
+    ui.visual.innerHTML = media(qq.key, qq.v);
   }
   ui.cap.innerHTML = qq.clues ? `<ul class="clues">${qq.clues.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : qq.cap ? esc(qq.cap) : '';
   ui.cap.style.display = ui.cap.innerHTML ? '' : 'none';
@@ -723,7 +757,7 @@ function renderResult() {
     const right = q.options[q.correct];
     const picked = q.options[a.choice];
     return `<li>
-      <div class="m-vis">${q.map ? '🗺️' : q.subject ? flagImg(q.subject, 'm-flag') : q.v?.type === 'text' ? `<span class="m-txt">${esc(q.v.text)}</span>` : renderVisual(q.v)}</div>
+      <div class="m-vis">${q.map ? '🗺️' : q.subject ? flagImg(q.subject, 'm-flag') : q.v?.type === 'text' ? `<span class="m-txt">${esc(q.v.text)}</span>` : media(q.key, q.v, { credit: false })}</div>
       <div class="m-text">
         <div class="m-country">${esc(q.cap || q.prompt)}</div>
         <div class="m-answer"><s>${esc(picked.label)}</s> → <b>${right.flag ? flagImg(right.flag) : ''}${esc(right.label)}</b></div>
