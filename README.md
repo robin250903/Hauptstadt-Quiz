@@ -30,12 +30,34 @@ und als App installierbar (funktioniert danach auch offline).
 - **Pausieren:** Ein angefangenes Quiz wird automatisch gespeichert und kann später fortgesetzt werden.
 - **Fehler üben:** Nach einer Runde können die falsch beantworteten Fragen gezielt wiederholt werden.
 
+## Geo-Trainer für GeoGuessr 🧭
+
+Unter `geo/` liegt eine zweite App: der **Geo-Trainer**. Sie hilft, Länder in GeoGuessr an typischen
+Merkmalen zu erkennen. Nach dem Veröffentlichen ist sie unter `…/geo/` erreichbar und vom
+Hauptstadt-Quiz aus verlinkt.
+
+- **Grundlagen:** Vorgehen, Sonnenstand, Fahrseite, Vegetation und Boden, Kamera und Google-Auto, Bauweise, Schilder.
+- **10 Kategorien** mit Lernseite (Erklärung, „Darauf achten“, Lernkarten mit Zeichnung) und Quiz:
+  Fahrseite, Straßenlinien, Poller, Strommasten und Mastspitzen, Kennzeichen, Verkehrsschilder (inkl.
+  Schriftarten), Sprache und Buchstaben, Schriften (Alphabete), Domains, Vorwahlen.
+- **Länder und Regionen:** 99 Länder mit Steckbrief (Fahrseite, Domain, Vorwahl, Sprache, Schrift, wichtigste
+  Merkmale). Für 24 Länder gibt es zusätzlich eine Karte mit Regionen und Hinweisen, wie man die Region
+  erkennt (z. B. USA: gebirgiger Westen, flache Great Plains, rote Erde im Südosten). Dazu je ein Regionen-Quiz.
+- **Quiz:** Multiple Choice mit Zeichnung und Erklärung nach jeder Antwort, Mix-Quiz über alle Kategorien,
+  Bestenliste (Top 5), Pausieren und Fortsetzen, Fehler üben und Lernfortschritt pro Kategorie.
+- Die Illustrationen (Poller, Masten, Straßen, Kennzeichen, Schilder) werden in `geo/src/visuals.js` als
+  vereinfachte SVG-Zeichnungen erzeugt. Sie zeigen die typischen Merkmale, keine Fotos.
+
+Die Lerninhalte stehen in `geo/src/data/` (`countries.js`, `categories.js`, `regions.js`, `basics.js`).
+GeoGuessr-Merkmale ändern sich gelegentlich (neue Kamerafahrten, neue Poller), deshalb sind die Inhalte
+bewusst einfach anpassbar gehalten.
+
 ## Entwicklung
 
 ```bash
 npm install
-npm run dev        # Entwicklungsserver
-npm test           # Tests der Antwortprüfung und der Daten
+npm run dev        # Entwicklungsserver (Geo-Trainer unter /geo/)
+npm test           # Tests der Antwortprüfung, der Daten und der Geo-Trainer-Fragen
 npm run build      # fertige App nach dist/
 ```
 

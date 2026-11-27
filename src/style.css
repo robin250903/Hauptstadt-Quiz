@@ -389,6 +389,12 @@ h3 {
   margin-top: 26px;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.geo-link {
+  text-decoration: none;
+  color: inherit;
 }
 
 /* ── Kategorie ───────────────────────────────────────────── */

@@ -1,0 +1,768 @@
+// Lern-Kategorien: Worauf man achtet und welches Merkmal zu welchem Land gehört.
+//
+// Kategorie-Felder:
+//   id, title, emoji, color, sub   Anzeige
+//   intro                          Erklärtext für die Lernseite
+//   look                           Liste „Darauf achten“
+//   kind   'items'  = Merkmal → Land (Fragen aus items)
+//          'drive'  = Links- oder Rechtsverkehr (aus den Länderdaten)
+//          'tld'    = Domain → Land, 'tel' = Vorwahl → Land
+//   size   Anzahl Fragen pro Quiz (Standard: alle)
+//
+// Item-Felder:
+//   id     eindeutig innerhalb der Kategorie
+//   c      Länder, auf die das Merkmal zutrifft (jedes davon ist eine richtige Antwort)
+//   v      Illustration (siehe visuals.js)
+//   cap    kurze Beschreibung zur Illustration (wird auch in der Frage gezeigt)
+//   text   Erklärung (Lernkarte und Auflösung)
+//   pool   Länder, aus denen falsche Antworten gewählt werden (sonst: alle Länder der Kategorie)
+//   amb    Länder, die als falsche Antwort NICHT vorkommen dürfen, weil das Merkmal dort auch vorkommt
+
+const W = '#f6f6f2';
+const K = '#151515';
+const RED = '#e0262b';
+const ORANGE = '#f08a16';
+const YEL = '#f4c400';
+const WHITE_LINE = '#f4f4f4';
+const YEL_LINE = '#f2c200';
+
+const SPANISH = ['es', 'mx', 'gt', 'cr', 'pa', 'do', 'pr', 'ar', 'bo', 'cl', 'co', 'ec', 'pe', 'uy'];
+const ARABIC = ['jo', 'ae', 'qa', 'tn', 'lb'];
+
+export const CATEGORIES = [
+  // ───────────────────────── Fahrseite ─────────────────────────
+  {
+    id: 'fahrseite',
+    title: 'Fahrseite',
+    emoji: '🚗',
+    color: '#e2445c',
+    sub: 'Links- oder Rechtsverkehr',
+    kind: 'drive',
+    size: 30,
+    intro:
+      'Die Fahrseite ist der schnellste Hinweis überhaupt: Sie schließt mit einem Blick rund die Hälfte der Länder aus. Linksverkehr gibt es vor allem in ehemaligen britischen Gebieten, in Japan und im südlichen und östlichen Afrika.',
+    look: [
+      'Auf welcher Straßenseite fahren die Autos, auf welcher Seite stehen geparkte Autos?',
+      'Wo sitzt das Lenkrad? (Achtung: auf den US-Jungferninseln fährt man links, aber mit Linkslenkern)',
+      'Auf welcher Seite stehen die Verkehrsschilder? Sie zeigen zum Verkehr, der auf ihrer Seite fährt.',
+      'Auf einspurigen Feldwegen hilft oft nur der Blick auf Schilder, Poller oder die Fahrtrichtung des Google-Autos.',
+      'Merke Ausnahmen: Thailand links, aber Laos und Kambodscha rechts. Ghana und Nigeria rechts, Kenia, Uganda und Südafrika links.',
+    ],
+  },
+
+  // ───────────────────────── Straßenlinien ─────────────────────────
+  {
+    id: 'linien',
+    title: 'Straßenlinien',
+    emoji: '🛣️',
+    color: '#f2a20c',
+    sub: 'Mittel- und Randlinien',
+    kind: 'items',
+    intro:
+      'Farbe und Muster der Fahrbahnmarkierung verraten oft schon den Kontinent. In Europa ist fast alles weiß, in Nord- und Südamerika ist die Mittellinie meist gelb. Im südlichen Afrika sind dagegen die Randlinien gelb.',
+    look: [
+      'Welche Farbe hat die Mittellinie – weiß oder gelb?',
+      'Welche Farbe haben die Randlinien? Gelbe Ränder = südliches Afrika, Irland, Hongkong …',
+      'Sind die Randlinien durchgezogen oder gestrichelt? Kurze, dichte Striche am Rand gibt es z. B. in Frankreich.',
+      'Doppelte Linien in der Mitte (USA, Kanada, Lateinamerika) oder am Bordstein (Großbritannien: Parkverbot)?',
+      'Achtung: Baustellen haben oft gelbe Markierungen – auch in Europa.',
+    ],
+    items: [
+      {
+        id: 'gelbe-mitte',
+        c: ['us', 'ca', 'mx', 'gt', 'cr', 'pa', 'br', 'ar', 'co', 'pe', 'ec'],
+        amb: ['no', 'th', 'jp', 'kr', 'tw', 'bo', 'uy', 'do', 'pr', 'cl', 'fi', 'is', 'ph', 'vn', 'ae'],
+        v: { type: 'road', center: { color: YEL_LINE, style: 'double' }, edge: { color: WHITE_LINE, style: 'solid' } },
+        cap: 'Gelbe (doppelte) Mittellinie, weiße Randlinien',
+        text: 'Typisch für Nord- und Südamerika: USA, Kanada, Mexiko, Mittelamerika und die meisten Länder Südamerikas. Große Ausnahme: Chile mit weißen Mittellinien.',
+      },
+      {
+        id: 'norwegen',
+        c: ['no'],
+        amb: ['fi', 'is'],
+        pool: ['se', 'dk', 'de', 'gb', 'pl', 'nl', 'fr', 'ee'],
+        v: { type: 'road', center: { color: YEL_LINE, style: 'dashed' }, edge: { color: WHITE_LINE, style: 'solid' } },
+        cap: 'Gelbe Mittellinie – in Europa',
+        text: 'Norwegen ist das bekannteste europäische Land mit gelben Mittellinien. Schweden, Dänemark und der Rest Europas markieren die Mitte weiß.',
+      },
+      {
+        id: 'gelbe-raender',
+        c: ['za', 'bw', 'sz', 'ls', 'ie', 'hk'],
+        amb: ['ke', 'ug', 'ae', 'mo', 'il', 'gb'],
+        v: { type: 'road', center: { color: WHITE_LINE, style: 'dashed' }, edge: { color: YEL_LINE, style: 'solid' } },
+        cap: 'Weiße Mittellinie, gelbe Randlinien',
+        text: 'Gelbe Ränder bei weißer Mitte: Südafrika und seine Nachbarn (Botswana, Eswatini, Lesotho), außerdem Irland (oft gestrichelt) und Hongkong.',
+      },
+      {
+        id: 'chile',
+        c: ['cl'],
+        pool: ['ar', 'br', 'pe', 'co', 'ec', 'mx'],
+        v: { type: 'road', center: { color: WHITE_LINE, style: 'dashed' }, edge: { color: WHITE_LINE, style: 'solid' } },
+        cap: 'Südamerika: weiße Mittellinie',
+        text: 'In Südamerika sind Mittellinien meist gelb – Chile benutzt dagegen überwiegend weiße Mittellinien.',
+      },
+      {
+        id: 'frankreich',
+        c: ['fr'],
+        amb: ['be', 'lu', 'se', 'dk', 'es', 'pt', 're', 'ch'],
+        pool: ['de', 'it', 'pl', 'gb', 'nl', 'at', 'cz'],
+        v: { type: 'road', center: { color: WHITE_LINE, style: 'dashed' }, edge: { color: WHITE_LINE, style: 'short' } },
+        cap: 'Weiß, Randlinien kurz gestrichelt',
+        text: 'Frankreich markiert den Fahrbahnrand häufig mit kurzen, dichten Strichen statt einer durchgezogenen Linie. (Gestrichelte Ränder gibt es aber auch in Skandinavien, Spanien oder Belgien – gut mit anderen Hinweisen kombinieren.)',
+      },
+      {
+        id: 'thailand',
+        c: ['th'],
+        pool: ['my', 'id', 'in', 'lk', 'bd', 'sg'],
+        v: { type: 'road', center: { color: YEL_LINE, style: 'solid' }, edge: { color: WHITE_LINE, style: 'solid' }, car: 'l' },
+        cap: 'Linksverkehr in Asien, gelbe Mittellinie',
+        text: 'Thailand hat gelbe Mittellinien und Linksverkehr. Malaysia, Indonesien, Indien und Sri Lanka markieren die Mitte meist weiß.',
+      },
+      {
+        id: 'uk-bordstein',
+        c: ['gb', 'ie'],
+        amb: ['mt', 'hk', 'mo', 'bm'],
+        pool: ['de', 'fr', 'nl', 'es', 'it', 'be', 'dk'],
+        v: { type: 'road', center: { color: WHITE_LINE, style: 'dashed' }, curb: { color: YEL_LINE, style: 'double' }, car: 'l' },
+        cap: 'Doppelte gelbe Linie am Bordstein',
+        text: 'Doppelte gelbe Linien direkt am Fahrbahnrand bedeuten im Vereinigten Königreich und in Irland „Parken verboten“.',
+      },
+    ],
+  },
+
+  // ───────────────────────── Poller ─────────────────────────
+  {
+    id: 'poller',
+    title: 'Poller',
+    emoji: '🚧',
+    color: '#4f7cff',
+    sub: 'Leitpfosten am Straßenrand',
+    kind: 'items',
+    intro:
+      'Leitpfosten (in der GeoGuessr-Welt „Bollards“) stehen in Europa an fast jeder Landstraße – und fast jedes Land hat sein eigenes Modell. Form, Farbe des Kopfes und Farbe und Form der Reflektoren sind die wichtigsten Unterschiede.',
+    look: [
+      'Querschnitt: rund, eckig, flach oder keilförmig (dreieckig)?',
+      'Hat der Pfosten einen schwarzen Kopf? Ist er gerade oder schräg abgeschnitten?',
+      'Reflektor: Farbe (weiß, gelb, orange, rot) und Form (Rechteck, senkrechter Streifen, Kreis, zwei Reflektoren)?',
+      'Oft unterscheiden sich Vorder- und Rückseite – schau dir beide an, wenn du an einem Poller vorbeifährst.',
+      'Viele Länder haben mehrere Modelle. Hier lernst du die häufigsten.',
+    ],
+    items: [
+      {
+        id: 'de',
+        c: ['de'],
+        amb: ['at', 'ch', 'lu'],
+        v: { type: 'bollard', top: 'slant', head: { color: K, h: 32, slant: 6 }, refl: [{ y: 10, h: 12, w: 14, color: '#f4f4f4' }] },
+        cap: 'Weiß, schwarzer schräg abgeschnittener Kopf, weißer Rechteck-Reflektor',
+        text: 'Deutscher Leitpfosten: weißer Pfosten mit schräger Oberkante und schwarzem Band. Rechts der Fahrbahn ein rechteckiger Reflektor, links zwei runde. An Einmündungen sind die Reflektoren orange.',
+      },
+      {
+        id: 'schwarzer-kopf-rot',
+        c: ['it', 'si', 'hr', 'hu', 'lv', 'at', 'me', 'al'],
+        amb: ['gr', 'mk', 'rs', 'pl', 'ru', 'bg', 'sk', 'cz', 'ua'],
+        v: { type: 'bollard', top: 'wedge', head: { color: K, h: 34 }, refl: [{ y: 12, h: 12, w: 14, color: RED }] },
+        cap: 'Weiß, schwarzer Kopf, roter Reflektor',
+        text: 'Dieser Typ ist im Süden und Südosten Europas weit verbreitet: Italien (oft dreieckig), Slowenien, Kroatien, Ungarn, Montenegro, Albanien, auch Lettland. In Österreich ist der Reflektor eher dunkelrot. Die Rückseite hat meist einen weißen Reflektor.',
+      },
+      {
+        id: 'cz-sk',
+        c: ['cz', 'sk'],
+        v: { type: 'bollard', top: 'flat', head: { color: K, h: 46 }, refl: [{ y: 8, h: 10, w: 18, color: ORANGE }, { y: 24, h: 10, w: 18, color: ORANGE }] },
+        cap: 'Schwarzer Kopf mit zwei orangen Reflektoren übereinander',
+        text: 'Tschechien und die Slowakei: zwei orange Reflektoren übereinander im schwarzen Kopfteil, hinten ein weißer.',
+      },
+      {
+        id: 'lt',
+        c: ['lt'],
+        v: { type: 'bollard', top: 'wedge', w: 34, refl: [{ y: 14, h: 18, w: 14, color: ORANGE }] },
+        cap: 'Keilförmig, oranger Reflektor',
+        text: 'Litauen: keilförmige (dreieckige) Pfosten mit orangem Reflektor vorne und weißem hinten.',
+      },
+      {
+        id: 'ee',
+        c: ['ee'],
+        amb: ['fi'],
+        v: { type: 'bollard', top: 'round', w: 20, tall: true, head: { color: K, h: 34 }, refl: [{ y: 14, h: 14, w: 10, color: '#f4f4f4' }] },
+        cap: 'Rund und schlank wie ein Stab',
+        text: 'Estland: runde, stabförmige Pfosten mit rechteckigem Reflektor vorne und zwei runden hinten. Finnische Pfosten sehen teils sehr ähnlich aus.',
+      },
+      {
+        id: 'is',
+        c: ['is'],
+        v: { type: 'bollard', top: 'flat', body: '#f2c200', refl: [{ y: 8, h: 14, w: 14, color: '#f4f4f4' }] },
+        cap: 'Gelber Pfosten',
+        text: 'Island: gelbe Poller mit weißem Reflektor – an fast jeder Landstraße.',
+      },
+      {
+        id: 'dk',
+        c: ['dk'],
+        v: { type: 'bollard', top: 'flat', bands: [{ y: 0, h: 8, color: '#e2571b' }], refl: [{ y: 16, h: 12, w: 14, color: YEL }] },
+        cap: 'Oranger Streifen oben, gelber Reflektor',
+        text: 'Dänemark: weiße Pfosten mit gelbem Reflektor und dunkel-orangem Streifen ganz oben.',
+      },
+      {
+        id: 'be',
+        c: ['be'],
+        v: { type: 'bollard', top: 'round', refl: [{ y: 18, h: 14, w: 16, color: YEL }] },
+        cap: 'Weiß, gelber rechteckiger Reflektor, kein Streifen',
+        text: 'Belgien: weiße Pfosten mit gelbem Rechteck-Reflektor vorne, weißem hinten – ähnlich wie Dänemark, aber ohne den orangen Streifen oben.',
+      },
+      {
+        id: 'nl',
+        c: ['nl'],
+        v: { type: 'bollard', top: 'flat', refl: [{ y: 6, h: 30, w: 8, color: RED }] },
+        cap: 'Weiß mit rotem senkrechtem Streifen',
+        text: 'Niederlande: schlichter weißer Pfosten mit rotem, schmalem Reflektor oben.',
+      },
+      {
+        id: 'fr',
+        c: ['fr'],
+        amb: ['re', 'mc', 'ad'],
+        v: { type: 'bollard', top: 'curve', bands: [{ y: 10, h: 16, color: '#5f646b' }] },
+        cap: 'Oben gebogen, mit dunklem Band',
+        text: 'Frankreich: weiße, oben zur Straße hin gebogene Pfosten mit dunkelgrauem Band und Reflektor. In Bergregionen (z. B. Alpen) haben sie oft eine rote Kappe.',
+      },
+      {
+        id: 'es',
+        c: ['es'],
+        amb: ['ad', 'pt'],
+        v: { type: 'bollard', top: 'slant', head: { color: K, h: 34, slant: 8 }, refl: [{ y: 12, h: 12, w: 14, color: ORANGE }] },
+        cap: 'Schwarzes schräges Band, oranger Reflektor',
+        text: 'Spanien: weißer Pfosten mit schwarzem, schrägem Band und gelb-orangem Reflektor.',
+      },
+      {
+        id: 'ru',
+        c: ['ru'],
+        amb: ['ua', 'kz', 'kg', 'bg', 'rs'],
+        v: { type: 'bollard', top: 'flat', head: { color: K, h: 16 }, refl: [{ y: 20, h: 26, w: 8, color: RED }] },
+        cap: 'Schwarzer Kopf, roter senkrechter Reflektor darunter',
+        text: 'Russland: weißer Pfosten mit schwarzem Kopfteil und einem roten, senkrechten Reflektorstreifen darunter.',
+      },
+      {
+        id: 'bg',
+        c: ['bg'],
+        amb: ['ru', 'rs', 'mk', 'ua'],
+        v: { type: 'bollard', top: 'flat', bands: [{ y: 12, h: 36, color: K }], refl: [{ y: 16, h: 28, w: 8, color: RED }] },
+        cap: 'Schwarzes Band mit rotem senkrechtem Reflektor darin',
+        text: 'Bulgarien: weißer Pfosten, ein schwarzes Band etwas unterhalb der Spitze und darin ein senkrechter roter Reflektor.',
+      },
+      {
+        id: 'no',
+        c: ['no'],
+        amb: ['se', 'fi'],
+        v: { type: 'bollard', top: 'curve', w: 22, refl: [{ shape: 'para', y: 8, h: 32, w: 22, color: K }, { y: 16, h: 14, w: 8, color: YEL }] },
+        cap: 'Dünn und gebogen, Reflektor in schwarzem Parallelogramm',
+        text: 'Norwegen: schmale, leicht gebogene Pfosten, der Reflektor sitzt in einem schwarzen, schrägen Feld.',
+      },
+      {
+        id: 'au',
+        c: ['au'],
+        amb: ['nz', 'nl'],
+        v: { type: 'bollard', top: 'round', w: 24, tall: true, refl: [{ y: 14, h: 14, w: 12, color: RED }] },
+        cap: 'Schlanker weißer Pfosten, kleiner roter Reflektor',
+        text: 'Australien: weiße Leitpfosten mit rotem Reflektor (mal rund, mal rechteckig) vorne und weißem hinten.',
+      },
+      {
+        id: 'nz',
+        c: ['nz'],
+        amb: ['au'],
+        v: { type: 'bollard', top: 'flat', w: 24, tall: true, bands: [{ y: 6, h: 18, color: RED }] },
+        cap: 'Weißer Pfosten mit rotem Band oben',
+        text: 'Neuseeland: weiße Pfosten mit einem roten Reflektorband, das sich um die Rückseite herumzieht. In Australien endet der Reflektor dagegen vorne.',
+      },
+    ],
+  },
+
+  // ───────────────────────── Strommasten ─────────────────────────
+  {
+    id: 'masten',
+    title: 'Strommasten',
+    emoji: '🗼',
+    color: '#6a4fe0',
+    sub: 'Masten und Mastspitzen',
+    kind: 'items',
+    intro:
+      'Strommasten sind überall – und sie sind schwer zu fälschen. Das Material (Holz, Beton, Metall), die Form (rund, eckig, mit Löchern) und das, was oben dran hängt (Querträger, Isolatoren, Transformatoren), unterscheiden sich stark zwischen Ländern.',
+    look: [
+      'Material: Holz (Nordamerika, Skandinavien, Großbritannien), Beton (Osteuropa, Lateinamerika, Asien) oder Metall?',
+      'Form: rund, eckig, achteckig, mit Löchern oder leiterartigen Aussparungen?',
+      'Mastspitze: ein langer Querträger mit Isolatoren, nur einzelne Isolatoren am Mast, Transformatoren?',
+      'Extras: gelb-schwarze Schutzhüllen an Abspannseilen (Japan), Stufen zum Hochklettern, Nummernschilder am Mast.',
+      'Keine Masten zu sehen? In den Niederlanden liegen fast alle Leitungen unter der Erde.',
+    ],
+    items: [
+      {
+        id: 'hu',
+        c: ['hu'],
+        amb: ['ro', 'pl', 'sk'],
+        v: { type: 'pole', mat: 'concrete', holes: 'full', arm: 'pins' },
+        cap: 'Beton, Löcher über die ganze Länge',
+        text: 'Ungarn: Betonmasten mit einer Reihe von Löchern von oben bis unten. Ähnliche „Lochmasten“ gibt es auch in Rumänien (dort oft gelb markiert) und Polen.',
+      },
+      {
+        id: 'pl',
+        c: ['pl'],
+        amb: ['hu', 'ro', 'cz', 'sk'],
+        v: { type: 'pole', mat: 'concrete', holes: 'middle', arm: 't' },
+        cap: 'Beton, Löcher nur im mittleren Teil',
+        text: 'Polen: Betonmasten, bei denen die Löcher nur im mittleren Abschnitt sitzen – oben und unten sind sie geschlossen.',
+      },
+      {
+        id: 'jp',
+        c: ['jp'],
+        amb: ['kr', 'tw'],
+        v: { type: 'pole', mat: 'concrete', steps: true, guard: true, arm: 't', trafo: true, wires: 6 },
+        cap: 'Runder Betonmast, Steigbolzen, gelb-schwarze Schutzhülle am Seil',
+        text: 'Japan: runde Betonmasten mit Steigbolzen, unzähligen Kabeln und gelb-schwarz gestreiften Schutzhüllen an den Abspannseilen. Gelb-schwarze Markierungen gibt es auch in Südkorea.',
+      },
+      {
+        id: 'us-ca',
+        c: ['us', 'ca'],
+        amb: ['pr', 'vi', 'bm', 'mx', 'gb', 'ie', 'au', 'nz', 'se', 'no', 'fi'],
+        v: { type: 'pole', mat: 'wood', arm: 't', trafo: true, wires: 3 },
+        cap: 'Holzmast mit Querträger und zylindrischem Transformator',
+        text: 'USA und Kanada: dunkle Holzmasten mit grauen, zylindrischen Transformatoren („Mülltonnen“). Auch in Großbritannien, Irland, Skandinavien und Ozeanien gibt es Holzmasten – aber die Trafos sehen anders aus.',
+      },
+      {
+        id: 'mx',
+        c: ['mx'],
+        amb: ['gt', 'cr', 'pa', 'do'],
+        v: { type: 'pole', mat: 'concrete', shape: 'oct', arm: 't' },
+        cap: 'Beton mit kantigem, achteckigem Querschnitt',
+        text: 'Mexiko: die meisten Masten sind aus Beton und haben einen achteckigen, kantigen Querschnitt.',
+      },
+      {
+        id: 'ar',
+        c: ['ar'],
+        amb: ['uy'],
+        v: { type: 'pole', mat: 'concrete', thick: true, arm: 'thick' },
+        cap: 'Dicker runder Betonmast mit dickem Querbalken',
+        text: 'Argentinien: dicke, runde Betonmasten mit einem massiven Querbalken – in Brasilien sieht man diese Bauart nicht.',
+      },
+      {
+        id: 'cl',
+        c: ['cl'],
+        v: { type: 'pole', mat: 'concrete', indent: true, arm: 't' },
+        cap: 'Eckiger Betonmast mit langer, nach oben schmaler werdender Rille',
+        text: 'Chile: eckige Betonmasten mit einer langen Vertiefung, die nach oben hin schmaler wird.',
+      },
+      {
+        id: 'br',
+        c: ['br'],
+        v: { type: 'pole', mat: 'concrete', shape: 'ladder', arm: 't' },
+        cap: 'Flacher Betonmast mit leiterartigen Aussparungen',
+        text: 'Brasilien: rechteckige Betonmasten mit vielen leiterartigen Aussparungen über die Länge.',
+      },
+      {
+        id: 'stobie',
+        c: ['au'],
+        v: { type: 'pole', mat: 'metal', shape: 'ibeam', arm: 't' },
+        cap: 'Zwei Stahlträger mit Beton dazwischen („Stobie-Mast“)',
+        text: 'Australien – genauer South Australia rund um Adelaide: Stobie-Masten aus zwei Stahlträgern, dazwischen Beton. Damit erkennt man sogar die Region!',
+      },
+      {
+        id: 'ru',
+        c: ['ru', 'ua', 'kz'],
+        amb: ['kg', 'mn', 'bg', 'ro', 'lv', 'lt', 'ee'],
+        v: { type: 'pole', mat: 'concrete', brace: true, arm: 'pins' },
+        cap: 'Betonmast mit schräger Stütze, einzelne Isolatoren',
+        text: 'In Russland und vielen Ländern der ehemaligen Sowjetunion (Ukraine, Kasachstan): Betonmasten, oft mit einer schrägen Stützstrebe und einzelnen Isolatoren direkt am Mast.',
+      },
+    ],
+  },
+
+  // ───────────────────────── Kennzeichen ─────────────────────────
+  {
+    id: 'kennzeichen',
+    title: 'Kennzeichen',
+    emoji: '🔢',
+    color: '#18a8c9',
+    sub: 'Nummernschilder',
+    kind: 'items',
+    intro:
+      'Nummernschilder sind in Street View verschwommen – aber Farbe und Form sind fast immer erkennbar. Gelbe Schilder, ein blaues Band, ein Band auf beiden Seiten oder rote Schrift reichen oft, um das Land festzulegen.',
+    look: [
+      'Grundfarbe: weiß, gelb oder schwarz? Ist das hintere Schild anders als das vordere?',
+      'Gibt es ein blaues EU-Band links? Ein zweites Band rechts (Frankreich, Italien, Portugal)?',
+      'Schriftfarbe (Belgien: rot), Rand (Dänemark: rot) oder Streifen (Österreich).',
+      'Form: lang und schmal (Europa) oder kurz und hoch (Amerika, Japan)?',
+      'Haben Autos überhaupt ein vorderes Kennzeichen? (In vielen US-Staaten nicht.)',
+    ],
+    items: [
+      {
+        id: 'gelb-eu',
+        c: ['nl', 'lu'],
+        pool: ['be', 'de', 'fr', 'dk', 'at', 'pl', 'cz'],
+        v: { type: 'plate', bg: YEL, fg: K, eu: 'NL', text: 'XT-123-B' },
+        cap: 'Gelb mit EU-Band – vorne und hinten',
+        text: 'Gelbe Kennzeichen vorne UND hinten mit EU-Band: Niederlande und Luxemburg. Die Niederlande sind flach, Luxemburg hügelig und bewaldet.',
+      },
+      {
+        id: 'weiss-gelb',
+        c: ['gb', 'hk', 'ke'],
+        amb: ['mt', 'cy', 'sg', 'ug', 'in', 'my', 'nl', 'lu', 'bm'],
+        pool: ['ie', 'de', 'fr', 'za', 'au', 'nz', 'jp', 'th'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, text: 'AB12 CDE', rear: { bg: YEL } },
+        cap: 'Vorne weiß, hinten gelb',
+        text: 'Vorne weiß, hinten gelb: das britische System. Es gilt im Vereinigten Königreich und z. B. in Hongkong und Kenia.',
+      },
+      {
+        id: 'be',
+        c: ['be'],
+        v: { type: 'plate', bg: '#fafafa', fg: '#b3132b', eu: 'B', text: '1-ABC-234' },
+        cap: 'Weiß mit roter Schrift',
+        text: 'Belgien ist das einzige Land mit roter Schrift auf weißem Grund.',
+      },
+      {
+        id: 'dk',
+        c: ['dk'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, eu: 'DK', border: '#c8102e', text: 'AB 12 345' },
+        cap: 'Weiß mit rotem Rand',
+        text: 'Dänemark: weiße Kennzeichen mit rotem Rahmen.',
+      },
+      {
+        id: 'fr-it',
+        c: ['fr', 'it'],
+        amb: ['re', 'pt'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, eu: 'F', right: { color: '#1d4fb8', num: '75' }, text: 'AB-123-CD' },
+        cap: 'Blaues Band links UND rechts',
+        text: 'Zwei blaue Bänder: Frankreich (rechts Regionslogo und Département-Nummer) und Italien (rechts optional Jahr und Provinz).',
+      },
+      {
+        id: 'pt',
+        c: ['pt'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, eu: 'P', right: { color: YEL, num: '24', numColor: K }, text: 'AA-00-AA' },
+        cap: 'Blaues Band links, gelbes Band rechts',
+        text: 'Portugal: rechts ein gelbes Band mit Jahr und Monat der Zulassung.',
+      },
+      {
+        id: 'at',
+        c: ['at'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, eu: 'A', stripes: '#d52b1e', text: 'W 1234 AB' },
+        cap: 'Roter Streifen oben und unten',
+        text: 'Österreich: rot-weiß-rote Streifen am oberen und unteren Rand.',
+      },
+      {
+        id: 'ch',
+        c: ['ch'],
+        pool: ['at', 'de', 'fr', 'it', 'lu', 'be'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, crest: 'ch', text: 'ZH 123456' },
+        cap: 'Ohne EU-Band, mit Wappen',
+        text: 'Schweiz: kein EU-Band, dafür das Schweizer Wappen und das Kantonswappen.',
+      },
+      {
+        id: 'hr',
+        c: ['hr'],
+        pool: ['si', 'rs', 'me', 'hu', 'sk', 'mk'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, eu: 'HR', crest: 'hr', text: 'ZG 1234-AB' },
+        cap: 'Rot-weiß kariertes Wappen in der Mitte',
+        text: 'Kroatien: das Schachbrett-Wappen trennt Stadtkürzel und Nummer.',
+      },
+      {
+        id: 'ru',
+        c: ['ru'],
+        pool: ['ua', 'kz', 'bg', 'pl', 'lt', 'tr'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, text: 'А 123 ВС', right: { color: '#fafafa', num: '77', numColor: K, divider: true }, rightFlag: 'ru' },
+        cap: 'Regionsnummer mit Flagge rechts',
+        text: 'Russland: kein Band links; rechts ein abgetrenntes Feld mit der Regionsnummer und der Flagge.',
+      },
+      {
+        id: 'ua',
+        c: ['ua'],
+        pool: ['ru', 'pl', 'ro', 'bg', 'kz', 'lt'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, left: { color: '#fafafa', text: 'UA', textColor: '#1d5ce0', flag: 'ua' }, text: 'AA 1234 BB' },
+        cap: 'Flagge und „UA“ links, ohne blaues Band',
+        text: 'Ukraine: die blau-gelbe Flagge und „UA“ links auf weißem Grund.',
+      },
+      {
+        id: 'il-co',
+        c: ['il', 'co'],
+        amb: ['nl', 'lu', 'gb', 'hk', 'ke', 'ec', 've'],
+        pool: ['jo', 'tr', 'gr', 'pe', 'br', 'ar', 'mx', 'cl'],
+        v: { type: 'plate', bg: YEL, fg: K, text: 'ABC 123', sub: 'BOGOTÁ D.C.' },
+        cap: 'Komplett gelb, ohne EU-Band',
+        text: 'Gelbe Kennzeichen außerhalb Europas: Kolumbien (darunter steht die Stadt) und Israel (mit blauem Band „IL“).',
+      },
+      {
+        id: 'my',
+        c: ['my'],
+        amb: ['id', 'sg', 'bn'],
+        pool: ['th', 'ph', 'vn', 'in', 'jp', 'kh', 'lk'],
+        v: { type: 'plate', bg: '#141414', fg: '#f4f4f4', text: 'WXY 1234' },
+        cap: 'Schwarz mit weißer Schrift',
+        text: 'Malaysia: schwarze Kennzeichen mit weißer Schrift. (Ältere Schilder in Indonesien sehen ähnlich aus.)',
+      },
+      {
+        id: 'mercosur',
+        c: ['br', 'ar', 'uy'],
+        amb: ['py', 'bo', 've', 'pe'],
+        pool: ['cl', 'co', 'mx', 'us', 'ec'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, top: { color: '#1d4fb8', text: 'BRASIL' }, topFlag: 'br', text: 'ABC1D23' },
+        cap: 'Weiß mit blauem Band oben (Mercosur)',
+        text: 'Das Mercosur-Kennzeichen (weiß, blaues Band oben mit Landesname und Flagge) gibt es in Brasilien, Argentinien und Uruguay.',
+      },
+      {
+        id: 'jp',
+        c: ['jp'],
+        pool: ['kr', 'tw', 'th', 'ph', 'my'],
+        v: { type: 'plate', bg: YEL, fg: K, small: true, text: '品川 580 あ 12-34' },
+        cap: 'Kleines gelbes Schild (Kei-Car)',
+        text: 'Japan: kleine Kennzeichen, weiß mit grüner Schrift für normale Autos, gelb für Kleinstwagen (Kei-Cars).',
+      },
+      {
+        id: 'tr',
+        c: ['tr'],
+        pool: ['gr', 'bg', 'de', 'ro', 'cy'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, left: { color: '#1d4fb8', text: 'TR' }, text: '34 ABC 123' },
+        cap: 'Blaues Band mit „TR“, vorne eine Zahl',
+        text: 'Türkei: blaues Band mit „TR“. Die erste Zahl ist die Provinz – 34 Istanbul, 06 Ankara, 35 Izmir.',
+      },
+      {
+        id: 'ie',
+        c: ['ie'],
+        pool: ['gb', 'nl', 'dk', 'be', 'fr'],
+        v: { type: 'plate', bg: '#fafafa', fg: K, eu: 'IRL', text: '191-D-12345' },
+        cap: 'EU-Band „IRL“, Jahr – Grafschaft – Nummer',
+        text: 'Irland: Jahr der Zulassung, Kürzel der Grafschaft (D = Dublin, C = Cork …) und laufende Nummer.',
+      },
+    ],
+  },
+
+  // ───────────────────────── Schilder ─────────────────────────
+  {
+    id: 'schilder',
+    title: 'Verkehrsschilder',
+    emoji: '🛑',
+    color: '#e5484d',
+    sub: 'Stopp, Warnung, Ortsschild, Schriftarten',
+    kind: 'items',
+    intro:
+      'Schilder folgen grob zwei Familien: In Europa, Afrika und weiten Teilen Asiens sind Warnschilder rot umrandete Dreiecke, in Amerika, Ozeanien und Teilen Südostasiens gelbe Rauten. Dazu kommen Sprache, Farben und die Schriftart auf den Wegweisern.',
+    look: [
+      'Warnschild: rotes Dreieck (Europa) oder gelbe Raute (Amerika, Australien, Irland …)? Dreieck mit gelbem Grund: Skandinavien, Polen.',
+      'Stoppschild: „STOP“, „ALTO“ (Mexiko, Mittelamerika), „PARE“ (Südamerika), „ARRÊT“ (Québec) oder eine ganz andere Form (Japan).',
+      'Ortsschild: gelb (Deutschland), weiß mit rotem Rand (Frankreich), blau (Niederlande) …',
+      'Wegweiser-Farben: In Italien und der Schweiz sind Autobahnen grün, in Deutschland und Frankreich blau.',
+      'Schriftart: DIN (Deutschland und viele andere), „Transport“ (Großbritannien, Irland), „Highway Gothic“ (USA) – breite runde US-Buchstaben wirken ganz anders als die schmale DIN.',
+    ],
+    items: [
+      {
+        id: 'gelbes-dreieck',
+        c: ['se', 'fi', 'is', 'pl'],
+        amb: ['mk', 'rs', 'me', 'gr', 'no', 'kr'],
+        pool: ['de', 'fr', 'es', 'it', 'nl', 'gb', 'dk', 'at', 'cz'],
+        v: { type: 'sign', kind: 'triangle', fill: '#ffd21f' },
+        cap: 'Warndreieck mit GELBEM Grund',
+        text: 'Gelb gefüllte Warndreiecke: Schweden, Finnland, Island und Polen. Die meisten anderen europäischen Länder haben weiße Dreiecke.',
+      },
+      {
+        id: 'raute-europa',
+        c: ['ie'],
+        pool: ['gb', 'de', 'fr', 'nl', 'is', 'dk', 'pt'],
+        v: { type: 'sign', kind: 'diamond' },
+        cap: 'Gelbe Raute als Warnschild – in Europa',
+        text: 'Irland nutzt wie Amerika und Australien gelbe, rautenförmige Warnschilder. Nordirland (Vereinigtes Königreich) hat dagegen rote Dreiecke.',
+      },
+      {
+        id: 'alto',
+        c: ['mx', 'gt', 'cr', 'pa'],
+        pool: ['br', 'ar', 'cl', 'co', 'uy', 'do', 'pr', 'bo', 'ec', 'es'],
+        v: { type: 'sign', kind: 'stop', text: 'ALTO' },
+        cap: 'Stoppschild „ALTO“',
+        text: '„ALTO“ steht auf Stoppschildern in Mexiko und Mittelamerika (Guatemala, Costa Rica, Panama …).',
+      },
+      {
+        id: 'pare',
+        c: ['br', 'ar', 'cl', 'co', 'uy', 'do', 'pr', 'bo', 'ec', 'pe'],
+        pool: ['mx', 'gt', 'cr', 'pa', 'es', 'us', 'pt'],
+        v: { type: 'sign', kind: 'stop', text: 'PARE' },
+        cap: 'Stoppschild „PARE“',
+        text: '„PARE“ steht in Südamerika (auch im portugiesischsprachigen Brasilien) und in der Karibik, z. B. Dominikanische Republik und Puerto Rico. Spanien und Portugal benutzen „STOP“.',
+      },
+      {
+        id: 'arret',
+        c: ['ca'],
+        pool: ['fr', 'be', 're', 'sn', 'tn', 'lu', 'ch'],
+        v: { type: 'sign', kind: 'stop', text: 'ARRÊT', size: 24 },
+        cap: 'Stoppschild „ARRÊT“',
+        text: 'Nur in Québec (Kanada) steht „ARRÊT“ auf dem Stoppschild. Frankreich und andere französischsprachige Länder schreiben „STOP“.',
+      },
+      {
+        id: 'jp-stop',
+        c: ['jp'],
+        pool: ['kr', 'tw', 'th', 'hk', 'ph'],
+        v: { type: 'sign', kind: 'yield-jp' },
+        cap: 'Rotes, auf der Spitze stehendes Dreieck als Stoppschild',
+        text: 'Japan: das Stoppschild ist ein rotes, umgedrehtes Dreieck mit „止まれ“ (tomare).',
+      },
+      {
+        id: 'il-stop',
+        c: ['il'],
+        pool: ['jo', 'lb', 'ae', 'tr', 'gr', 'qa'],
+        v: { type: 'sign', kind: 'stop', hand: true },
+        cap: 'Stoppschild mit einer Hand statt Text',
+        text: 'Israel: das Stoppschild zeigt eine weiße Hand statt eines Wortes.',
+      },
+      {
+        id: 'de-ort',
+        c: ['de'],
+        amb: ['at', 'ch', 'lu', 'be', 'cz', 'sk', 'hu'],
+        pool: ['fr', 'it', 'pl', 'nl', 'es', 'dk', 'se'],
+        v: { type: 'sign', kind: 'place', bg: '#ffd21f', fg: K, border: K, text: 'Göttingen', sub: 'Landkreis Göttingen' },
+        cap: 'Gelbes Ortsschild mit schwarzem Rand',
+        text: 'Deutschland: gelbe Ortsschilder in der Schriftart DIN 1451, darunter oft der Landkreis.',
+      },
+      {
+        id: 'fr-ort',
+        c: ['fr'],
+        amb: ['re', 'be', 'lu', 'ch', 'it', 'mc', 'ad', 'sn', 'tn'],
+        pool: ['de', 'nl', 'pl', 'es', 'dk', 'cz', 'se'],
+        v: { type: 'sign', kind: 'place', bg: '#fafafa', fg: K, border: '#d52b1e', text: 'RENNES', font: "'Arial Narrow', Arial, sans-serif" },
+        cap: 'Weißes Ortsschild mit rotem Rand, Großbuchstaben',
+        text: 'Frankreich: weiße Ortsschilder mit rotem Rand und Großbuchstaben in der französischen Schilderschrift.',
+      },
+      {
+        id: 'interstate',
+        c: ['us'],
+        pool: ['ca', 'mx', 'au', 'nz', 'gb'],
+        v: { type: 'sign', kind: 'interstate', text: '80' },
+        cap: 'Rot-blaues Wappenschild',
+        text: 'USA: Interstate-Autobahnen haben ein rot-blaues Schild. In Kanada heißen die Fernstraßen „Highway“ mit eigenen Provinz-Schildern.',
+      },
+      {
+        id: 'br-chevron',
+        c: ['br'],
+        pool: ['ar', 'cl', 'co', 'pe', 'uy', 'mx', 'ec'],
+        v: { type: 'sign', kind: 'chevron', bg: '#151515', fg: '#ffd21f' },
+        cap: 'Kurvenschild: gelbe Pfeile auf schwarzem Grund',
+        text: 'Brasilien: Kurven-Chevrons gelb auf schwarz – im übrigen Südamerika meist schwarz auf gelb.',
+      },
+    ],
+  },
+
+  // ───────────────────────── Sprache ─────────────────────────
+  {
+    id: 'sprache',
+    title: 'Sprache & Buchstaben',
+    emoji: '🔤',
+    color: '#20b26b',
+    sub: 'Sonderzeichen erkennen',
+    kind: 'items',
+    intro:
+      'Du musst keine Sprache sprechen, um sie zu erkennen. Ein einziger Sonderbuchstabe auf einem Schild oder Laden reicht oft: ő gibt es nur auf Ungarisch, ł nur auf Polnisch, ð nur auf Isländisch und Färöisch.',
+    look: [
+      'Suche nach Buchstaben mit Akzenten, Häkchen, Strichen oder Ringen – sie sind fast immer eindeutig.',
+      'Achte auf typische Wortendungen (Litauisch: -as, -is; Finnisch: viele Doppelvokale).',
+      'Bei Kyrillisch: ы/э → Russisch; і/ї/є → Ukrainisch; ђ/ћ → Serbisch; ѓ/ќ → Mazedonisch; ә/қ → Kasachisch.',
+      'Ortsschilder, Ladenschilder, Werbetafeln und Straßennamen sind die besten Stellen zum Lesen.',
+      'Domains und Telefonnummern auf Werbung verraten das Land oft direkt – siehe eigene Kategorien.',
+    ],
+    items: [
+      { id: 'sz', c: ['de', 'at'], pool: ['ch', 'nl', 'dk', 'lu', 'cz', 'pl'], v: { type: 'text', text: 'Hauptstraße', lang: 'de' }, cap: 'Der Buchstabe „ß“', text: '„ß“ gibt es nur in Deutschland und Österreich. Die Schweiz schreibt stattdessen immer „ss“ – ein wichtiger Unterschied!' },
+      { id: 'hu', c: ['hu'], pool: ['de', 'fi', 'ee', 'tr', 'cz', 'sk'], v: { type: 'text', text: 'Győr · Tűzoltóság', lang: 'hu' }, cap: 'ő und ű (Doppel-Akzent)', text: 'Ungarisch: ő und ű mit doppeltem Akzent gibt es in keiner anderen Sprache. Typisch sind auch „sz“, „gy“ und „cs“.' },
+      { id: 'pl', c: ['pl'], pool: ['cz', 'sk', 'lt', 'hr', 'hu'], v: { type: 'text', text: 'Łódź · Białystok', lang: 'pl' }, cap: 'Der Buchstabe „ł“', text: 'Polnisch: ł, dazu ą, ę, ś, ź, ż, ń, ć.' },
+      { id: 'cz', c: ['cz'], pool: ['sk', 'pl', 'hr', 'si', 'lt'], v: { type: 'text', text: 'Řeka · Průhonice', lang: 'cs' }, cap: 'ř und ů', text: 'Tschechisch: ř (wie in „Dvořák“) und ů gibt es nur hier. Slowakisch hat stattdessen ľ, ô und ä.' },
+      { id: 'sk', c: ['sk'], pool: ['cz', 'pl', 'si', 'hr'], v: { type: 'text', text: 'Ľubotín · Rožňava', lang: 'sk' }, cap: 'ľ, ĺ, ô – aber kein ř', text: 'Slowakisch: ľ, ĺ, ŕ, ô, ä. Das tschechische ř und ů fehlen.' },
+      { id: 'is', c: ['is'], amb: ['fo'], pool: ['no', 'dk', 'se', 'fi', 'ie'], v: { type: 'text', text: 'Þingvellir · Garðabær', lang: 'is' }, cap: 'þ und ð', text: 'Isländisch: þ (Thorn) und ð. Färöisch hat auch ð, aber kein þ.' },
+      { id: 'da-no', c: ['dk', 'no'], amb: ['fo', 'gl'], pool: ['se', 'fi', 'de', 'nl', 'is'], v: { type: 'text', text: 'Søndergade · Ærø', lang: 'da' }, cap: 'ø und æ', text: 'ø und æ: Dänemark und Norwegen (auch Färöer). Schweden und Finnland schreiben stattdessen ö und ä.' },
+      { id: 'se', c: ['se'], amb: ['fi'], pool: ['dk', 'no', 'de', 'ee', 'is'], v: { type: 'text', text: 'Västerås · Göteborg', lang: 'sv' }, cap: 'å, ä, ö', text: 'Schwedisch: å, ä und ö. (In Finnland gibt es zweisprachige schwedische Ortsnamen – aber Finnisch erkennt man an den vielen Doppelvokalen.)' },
+      { id: 'fi', c: ['fi'], amb: ['ee'], pool: ['se', 'no', 'dk', 'hu', 'de'], v: { type: 'text', text: 'Jyväskylä · Hämeenlinna', lang: 'fi' }, cap: 'ä, ö und viele Doppelvokale', text: 'Finnisch: sehr lange Wörter, viele Doppelvokale (ää, ee, uu) und Doppelkonsonanten, kein å in finnischen Wörtern.' },
+      { id: 'ee', c: ['ee'], pool: ['fi', 'lv', 'lt', 'pt', 'se'], v: { type: 'text', text: 'Võru · Põltsamaa', lang: 'et' }, cap: 'Der Buchstabe „õ“', text: 'Estnisch: õ (sonst nur im Portugiesischen, dort aber mit ganz anderen Wörtern).' },
+      { id: 'lv', c: ['lv'], pool: ['lt', 'ee', 'pl', 'cz'], v: { type: 'text', text: 'Rēzekne · Jūrmala · Liepāja', lang: 'lv' }, cap: 'Längenstriche ā, ē, ī, ū', text: 'Lettisch: Längenstriche auf Vokalen und Komma-Buchstaben wie ķ, ļ, ņ, ģ.' },
+      { id: 'lt', c: ['lt'], pool: ['lv', 'pl', 'ee', 'cz'], v: { type: 'text', text: 'Klaipėda · Panevėžys', lang: 'lt' }, cap: 'ė und ų', text: 'Litauisch: ė, ų, į, ą, ę – Wörter enden oft auf -as, -is, -us, -ys.' },
+      { id: 'ro', c: ['ro'], pool: ['it', 'tr', 'hu', 'pt', 'es'], v: { type: 'text', text: 'Timișoara · Brașov', lang: 'ro' }, cap: 'ș, ț, ă, î', text: 'Rumänisch: ș und ț mit Komma darunter, dazu ă, â und î.' },
+      { id: 'tr', c: ['tr'], pool: ['ro', 'al', 'az', 'hu', 'gr'], v: { type: 'text', text: 'Eskişehir · Diyarbakır', lang: 'tr' }, cap: 'ş, ğ und ı (ohne Punkt)', text: 'Türkisch: ı ohne Punkt, ş, ğ, ç, ö, ü.' },
+      { id: 'al', c: ['al'], pool: ['tr', 'ro', 'hr', 'it', 'gr'], v: { type: 'text', text: 'Shkodër · Korçë', lang: 'sq' }, cap: 'Viele „ë“ und „ç“', text: 'Albanisch: auffällig häufiges ë, dazu ç und Doppelbuchstaben wie „rr“, „ll“, „sh“.' },
+      { id: 'hr', c: ['hr', 'rs', 'me'], pool: ['si', 'cz', 'sk', 'pl'], v: { type: 'text', text: 'Đakovo · Čakovec · Vukovar', lang: 'hr' }, cap: 'đ und ć', text: 'Kroatisch, Serbisch (lateinisch) und Montenegrinisch: č, ć, đ, š, ž. Slowenisch kennt kein ć und kein đ.' },
+      { id: 'mt', c: ['mt'], pool: ['it', 'gb', 'ie', 'cy'], v: { type: 'text', text: 'Ħamrun · Żebbuġ', lang: 'mt' }, cap: 'ħ, ġ, ż', text: 'Maltesisch: ħ mit Querstrich, ġ und ż mit Punkt.' },
+      { id: 'nl', c: ['nl', 'be'], amb: ['sr'], pool: ['de', 'dk', 'lu', 'za'], v: { type: 'text', text: 'IJmuiden · Rijksweg', lang: 'nl' }, cap: '„ij“ als ein Buchstabe', text: 'Niederländisch (Niederlande, Flandern in Belgien): „ij“, „oo“, „aa“, „sch“. Afrikaans in Südafrika ist ähnlich, schreibt aber „y“ statt „ij“.' },
+      { id: 'cy', c: ['gb'], pool: ['ie', 'nl', 'is', 'mt'], v: { type: 'text', text: 'Ffordd · Ysgol · Llanelli', lang: 'cy' }, cap: '„ll“, „dd“, „ff“, „w“ als Vokal', text: 'Walisisch (Wales, Vereinigtes Königreich): ll, dd, ff und w/y als Vokale. Schilder sind zweisprachig.' },
+      { id: 'ga', c: ['ie'], pool: ['gb', 'is', 'mt', 'fr'], v: { type: 'text', text: 'Baile Átha Cliath · An Lár', lang: 'ga' }, cap: 'Irisch mit Akzenten (fada)', text: 'Irisch: Akzente á, é, í, ó, ú, viele „bh“, „mh“, „dh“. Auf Schildern meist oben oder kursiv über dem Englischen.' },
+      { id: 'pt', c: ['pt', 'br'], pool: ['es', 'it', 'fr', 'ro', 'ar', 'mx'], v: { type: 'text', text: 'Estação · São João', lang: 'pt' }, cap: 'ã, õ und „-ção“', text: 'Portugiesisch (Portugal, Brasilien): ã, õ, ç und die Endung „-ção“.' },
+      { id: 'es', c: SPANISH, pool: ['pt', 'br', 'it', 'fr', 'ro', 'ph'], v: { type: 'text', text: 'España · Peñalolén', lang: 'es' }, cap: 'Der Buchstabe „ñ“', text: '„ñ“ steht für Spanisch – also Spanien oder Lateinamerika (außer Brasilien).' },
+      { id: 'vn', c: ['vn'], pool: ['ph', 'id', 'my', 'kh', 'la', 'th'], v: { type: 'text', text: 'Đường Lê Lợi · Phường', lang: 'vi' }, cap: 'Lateinisch mit gestapelten Akzenten', text: 'Vietnamesisch: lateinische Buchstaben mit sehr vielen, oft doppelten Akzenten (ư, ơ, ệ, ố) und đ.' },
+      { id: 'ru', c: ['ru'], amb: ['kz', 'kg', 'mn', 'by'], pool: ['ua', 'bg', 'rs', 'mk'], v: { type: 'text', text: 'Улица · Высокий · Эстрада', lang: 'ru' }, cap: 'Kyrillisch mit „ы“ und „э“', text: 'Russisch: ы und э. Ukrainisch und Bulgarisch haben diese Buchstaben nicht.' },
+      { id: 'ua', c: ['ua'], pool: ['ru', 'bg', 'rs', 'mk', 'kz'], v: { type: 'text', text: 'Київ · Хмельницький', lang: 'uk' }, cap: 'і, ї, є', text: 'Ukrainisch: і, ї, є und ґ. Russisch nutzt stattdessen и, ы, э.' },
+      { id: 'bg', c: ['bg'], pool: ['ru', 'ua', 'rs', 'mk'], v: { type: 'text', text: 'Търговище · Пловдив', lang: 'bg' }, cap: 'Häufiges „ъ“, kein ы/э', text: 'Bulgarisch: auffällig viele ъ (auch mitten im Wort), aber kein ы und kein э.' },
+      { id: 'rs', c: ['rs', 'me'], pool: ['ru', 'bg', 'mk', 'ua'], v: { type: 'text', text: 'Ћуприја · Љиг · Ђурђевац', lang: 'sr' }, cap: 'ђ, ћ, љ, њ, џ, ј', text: 'Serbisch (kyrillisch, auch Montenegro): ђ, ћ, љ, њ, џ und das lateinisch aussehende ј.' },
+      { id: 'mk', c: ['mk'], pool: ['rs', 'bg', 'ru', 'ua'], v: { type: 'text', text: 'Ѓорче Петров · Охрид', lang: 'mk' }, cap: 'ѓ, ќ, ѕ', text: 'Mazedonisch: ѓ, ќ und ѕ – dazu wie im Serbischen ј, љ, њ.' },
+      { id: 'kz', c: ['kz'], pool: ['ru', 'kg', 'mn', 'ua'], v: { type: 'text', text: 'Қарағанды · Өскемен', lang: 'kk' }, cap: 'ә, ғ, қ, ң, ө, ұ, ү', text: 'Kasachisch: viele Zusatzbuchstaben wie ә, ғ, қ, ң, ұ. Kirgisisch hat nur ң, ө, ү.' },
+      { id: 'kg', c: ['kg'], amb: ['mn'], pool: ['kz', 'ru', 'ua', 'bg'], v: { type: 'text', text: 'Ысык-Көл · Чүй', lang: 'ky' }, cap: 'ң, ө, ү – ohne ә, ғ, қ', text: 'Kirgisisch: ң, ө, ү. Die kasachischen ә, ғ, қ fehlen. Mongolisch hat auch ө und ү, aber viele Doppelvokale.' },
+      { id: 'mn', c: ['mn'], amb: ['kg'], pool: ['kz', 'ru', 'bg', 'ua'], v: { type: 'text', text: 'Улаанбаатар · Сүхбаатар', lang: 'mn' }, cap: 'ө, ү und viele Doppelvokale', text: 'Mongolisch: Kyrillisch mit ө und ү und auffällig vielen Doppelvokalen (аа, оо, үү).' },
+    ],
+  },
+
+  // ───────────────────────── Schriften ─────────────────────────
+  {
+    id: 'schriften',
+    title: 'Schriften',
+    emoji: '✍️',
+    color: '#ff8a3d',
+    sub: 'Alphabete der Welt',
+    kind: 'items',
+    intro:
+      'Viele Länder benutzen eigene Schriften. Selbst ohne ein Wort zu verstehen, kannst du sie an ihren Formen unterscheiden: Thai hat kleine Kringel, Khmer hängt Zeichen unter die Zeile, Bengali und Devanagari haben eine durchgehende Oberlinie.',
+    look: [
+      'Rund mit kleinen Kringeln am Anfang der Striche → Thai. Noch runder und schlichter → Laotisch.',
+      'Zeichen hängen unter der Zeile, sehr verschnörkelt → Khmer (Kambodscha).',
+      'Durchgehender Strich oben: Devanagari (Nepal, Nordindien), Bengalisch (Bangladesch) – Bengali hat spitzere Dreiecksformen.',
+      'Kreise und Striche in Blöcken → Koreanisch. Kanji gemischt mit einfachen runden Zeichen → Japanisch. Nur komplexe Zeichen → Chinesisch (Taiwan, Hongkong, Macau).',
+      'Von rechts nach links: Arabisch (verbundene Schrift mit Punkten) oder Hebräisch (eckige, einzeln stehende Buchstaben).',
+    ],
+    items: [
+      { id: 'gr', c: ['gr'], pool: ['bg', 'ru', 'mk', 'tr', 'il'], v: { type: 'text', text: 'Αθήνα · Θεσσαλονίκη', lang: 'el' }, cap: 'Griechisches Alphabet', text: 'Griechisch: Buchstaben wie Θ, Λ, Σ, Ω – Schilder meist mit lateinischer Umschrift.' },
+      { id: 'il', c: ['il'], pool: ['jo', 'ae', 'lb', 'gr', 'tn'], v: { type: 'text', text: 'תל אביב · ירושלים', lang: 'he', rtl: true }, cap: 'Eckige Buchstaben, von rechts nach links', text: 'Hebräisch (Israel): eckige, nicht verbundene Buchstaben. Arabisch ist dagegen eine verbundene, geschwungene Schrift.' },
+      { id: 'ar', c: ARABIC, pool: ['il', 'tr', 'gr', 'in', 'bd', 'th'], v: { type: 'text', text: 'شارع · عمّان', lang: 'ar', rtl: true }, cap: 'Verbundene Schrift mit Punkten, von rechts nach links', text: 'Arabisch: Jordanien, Vereinigte Arabische Emirate, Katar, Tunesien, Libanon. Tunesien und Libanon zusätzlich mit Französisch.' },
+      { id: 'th', c: ['th'], pool: ['la', 'kh', 'lk', 'bd', 'np'], v: { type: 'text', text: 'กรุงเทพมหานคร', lang: 'th' }, cap: 'Kleine Kringel an den Buchstaben', text: 'Thai: viele Buchstaben beginnen mit einem kleinen Kringel. Wörter stehen ohne Leerzeichen hintereinander.' },
+      { id: 'la', c: ['la'], pool: ['th', 'kh', 'lk', 'bt'], v: { type: 'text', text: 'ວຽງຈັນ · ຫຼວງພະບາງ', lang: 'lo' }, cap: 'Rund und schlicht, wenige Kringel', text: 'Laotisch: verwandt mit Thai, aber runder und mit weniger Kringeln und Ecken.' },
+      { id: 'kh', c: ['kh'], pool: ['th', 'la', 'lk', 'bd'], v: { type: 'text', text: 'ភ្នំពេញ · សៀមរាប', lang: 'km' }, cap: 'Verschnörkelt, Zeichen hängen unter der Zeile', text: 'Khmer (Kambodscha): sehr verschnörkelte Schrift mit vielen Zeichen, die unter die Zeile hängen.' },
+      { id: 'jp', c: ['jp'], pool: ['kr', 'tw', 'hk', 'th'], v: { type: 'text', text: 'とうきょう · 東京駅', lang: 'ja' }, cap: 'Komplexe Zeichen + einfache runde Silbenzeichen', text: 'Japanisch: Kanji gemischt mit einfachen, runden Hiragana (の, る) und eckigen Katakana (ト, ン).' },
+      { id: 'kr', c: ['kr'], pool: ['jp', 'tw', 'hk', 'th'], v: { type: 'text', text: '서울특별시 · 부산', lang: 'ko' }, cap: 'Kreise und Striche in Silbenblöcken', text: 'Koreanisch (Hangul): Kreise (ㅇ), Striche und Winkel, zu quadratischen Silbenblöcken zusammengesetzt.' },
+      { id: 'zh', c: ['tw', 'hk', 'mo'], pool: ['jp', 'kr', 'th', 'sg'], v: { type: 'text', text: '臺北市 · 香港', lang: 'zh-Hant' }, cap: 'Nur komplexe Zeichen, keine Silbenschrift', text: 'Traditionelles Chinesisch: Taiwan, Hongkong und Macau. Ohne die einfachen Silbenzeichen, die Japanisch hat.' },
+      { id: 'deva', c: ['np', 'in'], pool: ['bd', 'lk', 'th', 'bt'], v: { type: 'text', text: 'काठमाडौं · दिल्ली', lang: 'ne' }, cap: 'Durchgehende Oberlinie, eckig', text: 'Devanagari: Nepal und Nordindien (Hindi). Die Buchstaben hängen an einer durchgehenden Linie.' },
+      { id: 'bn', c: ['bd'], amb: ['in'], pool: ['np', 'lk', 'th', 'bt'], v: { type: 'text', text: 'ঢাকা · চট্টগ্রাম', lang: 'bn' }, cap: 'Oberlinie mit spitzen Dreiecksformen', text: 'Bengalisch: Bangladesch (und Westbengalen in Indien). Ähnlich Devanagari, aber mit spitzeren, dreieckigen Formen.' },
+      { id: 'si', c: ['lk'], pool: ['in', 'bd', 'th', 'np'], v: { type: 'text', text: 'කොළඹ · මහනුවර', lang: 'si' }, cap: 'Sehr runde Schrift mit Schleifen', text: 'Singhalesisch (Sri Lanka): extrem runde Buchstaben. Daneben steht oft Tamil.' },
+      { id: 'ta', c: ['lk', 'in'], pool: ['bd', 'np', 'th', 'kh'], v: { type: 'text', text: 'சென்னை · தமிழ்நாடு', lang: 'ta' }, cap: 'Eckig-runde Schrift ohne Oberlinie', text: 'Tamil: Tamil Nadu in Südindien und der Norden und Osten Sri Lankas.' },
+      { id: 'bo', c: ['bt'], pool: ['np', 'in', 'th', 'la'], v: { type: 'text', text: 'ཐིམ་ཕུ · སྤ་རོ', lang: 'dz' }, cap: 'Tibetische Schrift mit Punkten zwischen den Silben', text: 'Tibetische Schrift (Dzongkha) in Bhutan: Silben werden durch kleine Punkte getrennt.' },
+      { id: 'cyr', c: ['ru', 'ua', 'bg', 'kz', 'kg', 'mn', 'mk', 'rs'], pool: ['gr', 'tr', 'ro', 'pl', 'il'], v: { type: 'text', text: 'Центр · Улица', lang: 'ru' }, cap: 'Kyrillisch', text: 'Kyrillisch: Russland, Ukraine, Bulgarien, Serbien, Nordmazedonien, Kasachstan, Kirgistan, Mongolei. Welches Land? → Sonderbuchstaben in „Sprache & Buchstaben“.' },
+    ],
+  },
+
+  // ───────────────────────── Domains ─────────────────────────
+  {
+    id: 'domains',
+    title: 'Domains',
+    emoji: '🌐',
+    color: '#0f9d74',
+    sub: 'Internetadressen auf Werbung',
+    kind: 'tld',
+    size: 30,
+    intro:
+      'Auf Werbetafeln, Lieferwagen und Ladenschildern stehen oft Internetadressen. Die Endung (.de, .fr, .com.br …) verrät das Land sofort. Achtung: .com ist international – aber .com.br, .co.uk oder .com.au sind eindeutig.',
+    look: [
+      'Lies Werbung an Häusern, Bushaltestellen und Lieferwagen.',
+      'Zweiteilige Endungen: .co.uk, .com.au, .co.nz, .com.br, .co.za, .co.jp …',
+      'Nicht verwirren lassen: .me ist Montenegro, .co ist Kolumbien, .tv ist Tuvalu – werden aber oft international genutzt.',
+    ],
+  },
+
+  // ───────────────────────── Vorwahlen ─────────────────────────
+  {
+    id: 'vorwahlen',
+    title: 'Vorwahlen',
+    emoji: '📞',
+    color: '#9a7bff',
+    sub: 'Telefonnummern lesen',
+    kind: 'tel',
+    size: 30,
+    intro:
+      'Telefonnummern stehen auf Ladenschildern, Werbung und Lkw. Mit internationaler Vorwahl ist das Land sofort klar – und selbst ohne verrät das Format einiges. Achtung: +1 teilen sich USA, Kanada und die Karibik, +7 Russland und Kasachstan.',
+    look: [
+      'Suche nach „+“ oder „00“ am Anfang einer Nummer.',
+      '+1: USA, Kanada, Puerto Rico, Dominikanische Republik, Bermuda, US-Jungferninseln – die Ortsvorwahl (z. B. 787 = Puerto Rico, 809 = Dominikanische Republik) hilft weiter.',
+      'Ohne Ländervorwahl: Länge und Gruppierung der Nummer sind typisch für ein Land.',
+    ],
+  },
+];
+
+export const CATEGORY_BY_ID = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
