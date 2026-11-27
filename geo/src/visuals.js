@@ -33,7 +33,7 @@ export function bollard(p) {
   const x0 = 60 - w / 2;
   const x1 = 60 + w / 2;
   const yb = 186; // Fuß
-  const yt = p.tall ? 26 : 44; // Oberkante
+  const yt = p.short ? 100 : p.tall ? 26 : 44; // Oberkante
   let outline;
   switch (p.top) {
     case 'slant':
@@ -117,6 +117,9 @@ export function road(p) {
     else if (style === 'double') {
       solid(u - thick * 1.8);
       solid(u + thick * 1.8);
+    } else if (style === 'double-wide') {
+      solid(u - thick * 3.2);
+      solid(u + thick * 3.2);
     } else if (style === 'double-dashed') {
       solid(u - thick * 1.8);
       dashed(u + thick * 1.8);
@@ -132,6 +135,7 @@ export function road(p) {
   if (e) parts.push(line(-0.9, e.style, e.color, 0.02), line(0.9, e.style, e.color, 0.02));
   if (p.curb) parts.push(line(-1.0, p.curb.style, p.curb.color, 0.016), line(1.0, p.curb.style, p.curb.color, 0.016));
   if (c) parts.push(line(0, c.style, c.color));
+  if (p.center2) parts.push(line(0, p.center2.style, p.center2.color));
   if (p.car) {
     const u = p.car === 'l' ? -0.45 : 0.45;
     const t = 0.55;
@@ -186,8 +190,12 @@ function plateSvg(p, y = 0) {
     tx0 = 34;
   } else if (p.left) {
     tc = p.left.textColor;
-    band(5, p.left.color, p.left.text, 'l');
+    band(5, p.left.color, p.left.topColor ? '' : p.left.text, 'l');
     tc = null;
+    if (p.left.topColor) {
+      parts.push(`<path d="M${5 + r} ${y + 5}H31V${y + h / 2}H6V${y + 5 + r - 1}A${r - 1} ${r - 1} 0 0 1 ${5 + r} ${y + 5}Z" fill="${p.left.topColor}"/>`);
+      if (p.left.text) parts.push(`<text x="18" y="${y + h - 12}" text-anchor="middle" font-size="11" font-weight="700" fill="#1d3f8f" font-family="Arial, sans-serif">${esc(p.left.text)}</text>`);
+    }
     if (p.left.flag && smallFlag[p.left.flag]) parts.push(smallFlag[p.left.flag](11, y + 12));
     tx0 = 34;
   }
@@ -291,8 +299,8 @@ export function pole(p) {
   if (p.holes && p.holes !== 'none') {
     const [y0, y1] = p.holes === 'middle' ? [85, 150] : p.holes === 'bottom' ? [140, 192] : [top + 10, bot - 8];
     for (let y = y0; y < y1; y += 9) {
-      const hw = (x(y, 1) - x(y, -1)) * 0.42;
-      parts.push(`<rect x="${70 - hw / 2}" y="${y}" width="${hw}" height="5" rx="1.5" fill="#3d3b37"/>`);
+      const hw = (x(y, 1) - x(y, -1)) * (p.smallHoles ? 0.22 : 0.42);
+      parts.push(`<rect x="${70 - hw / 2}" y="${y}" width="${hw}" height="${p.smallHoles ? 3.5 : 5}" rx="1.5" fill="#3d3b37"/>`);
     }
   }
   if (p.shape === 'ladder') {
@@ -303,11 +311,12 @@ export function pole(p) {
   }
   if (p.steps) {
     for (let y = 60; y < 175; y += 14) {
-      const s = (y / 14) % 2 < 1 ? 1 : -1;
+      const s = Math.round(y / 14) % 2 ? 1 : -1;
       parts.push(`<rect x="${s > 0 ? x(y, 1) : x(y, -1) - 8}" y="${y}" width="8" height="2.2" fill="#555"/>`);
     }
   }
   if (p.stripes) {
+    if (p.stripeBase) parts.push(`<path d="M${x(146, -1)} 146L${x(146, 1)} 146L${x(bot, 1)} ${bot}L${x(bot, -1)} ${bot}Z" fill="${p.stripeBase}"/>`);
     for (let y = 150; y < 196; y += 8) parts.push(`<path d="M${x(y, -1)} ${y + 6}L${x(y, 1)} ${y}V${y + 4}L${x(y, -1)} ${y + 10}Z" fill="${p.stripes}"/>`);
   }
   // Querträger + Isolatoren
@@ -319,6 +328,8 @@ export function pole(p) {
   if (p.arm === 't' || p.arm === 'double') arm(44, 46);
   if (p.arm === 'double') arm(64, 40);
   if (p.arm === 'thick') arm(46, 52, 9);
+  if (p.arm === 'bars') for (let i = 0; i < (p.bars || 3); i++) arm(40 + i * 16, 44 - i * 4, 4);
+  if (p.plate) parts.push(`<rect x="${70 - 6}" y="118" width="12" height="8" rx="1" fill="${p.plate}" stroke="rgba(0,0,0,.3)" stroke-width=".6"/>`);
   if (p.arm === 'pins') {
     parts.push(ins(70, top), ins(x(48, 1) + 6, 52), ins(x(64, -1) - 6, 68));
     parts.push(`<rect x="${x(48, 1)}" y="51" width="8" height="2.5" fill="#666"/><rect x="${x(64, -1) - 8}" y="67" width="8" height="2.5" fill="#666"/>`);
@@ -398,9 +409,24 @@ export function sign(p) {
     case 'interstate':
       body = `${post(90, 120, 180)}<path d="M40 40Q90 22 140 40Q146 100 90 140Q34 100 40 40Z" fill="#fff"/><path d="M45 44Q90 28 135 44L134 62H46Z" fill="#c8102e"/><path d="M46 62H134Q130 100 90 134Q50 100 46 62Z" fill="#0b3d91"/><text x="90" y="56" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="Arial">INTERSTATE</text><text x="90" y="108" text-anchor="middle" font-size="40" font-weight="700" fill="#fff" font-family="Arial">${esc(t || '80')}</text>`;
       break;
-    case 'crossing-blue':
-      body = `${post(90, 120, 180)}<rect x="35" y="25" width="110" height="110" rx="8" fill="#1d5ce0"/><path d="M90 38L136 122H44Z" fill="#fff"/><g transform="translate(90 104)" fill="#111"><circle cx="0" cy="-30" r="5"/><path d="M-3 -23h6l5 15-3 1-4-9-1 10 6 14-4 2-6-13-5 13-4-2 5-14 1-10-4 9-3-1z"/></g><path d="M58 117h64" stroke="#111" stroke-width="3" stroke-dasharray="7 4"/>`;
+    case 'crossing': {
+      // Fußgängerüberweg-Schild: p.bg (Grund), p.tri (Dreieck), p.stripes (Anzahl Zebrastreifen), p.line (nur eine Linie), p.tall
+      const x0 = p.tall ? 52 : 35;
+      const w = p.tall ? 76 : 110;
+      const y0 = p.tall ? 12 : 25;
+      const h = p.tall ? 126 : 110;
+      body = `${post(90, y0 + h - 10, 180)}<rect x="${x0}" y="${y0}" width="${w}" height="${h}" rx="8" fill="${p.bg || '#1d5ce0'}"/><path d="M90 ${y0 + 12}L${x0 + w - 8} ${y0 + h - 12}H${x0 + 8}Z" fill="${p.tri || '#fff'}"/>`;
+      const gy = y0 + h - 26;
+      if (p.line) body += `<rect x="${x0 + 22}" y="${gy + 6}" width="${w - 44}" height="3" fill="#111"/>`;
+      else {
+        const n = p.stripes || 5;
+        const span = w - 40;
+        const sw = span / (2 * n - 1);
+        for (let i = 0; i < n; i++) body += `<rect x="${x0 + 20 + i * 2 * sw}" y="${gy + 2}" width="${sw}" height="8" fill="#111"/>`;
+      }
+      body += `<g transform="translate(90 ${gy - 6}) scale(.9)" fill="#111"><circle cx="0" cy="-30" r="5"/><path d="M-3 -23h6l5 15-3 1-4-9-1 10 6 14-4 2-6-13-5 13-4-2 5-14 1-10-4 9-3-1z"/></g>`;
       break;
+    }
     default:
       body = '';
   }

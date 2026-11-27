@@ -48,6 +48,8 @@ Hauptstadt-Quiz aus verlinkt.
 - Die Illustrationen (Poller, Masten, Straßen, Kennzeichen, Schilder) werden in `geo/src/visuals.js` als
   vereinfachte SVG-Zeichnungen erzeugt. Sie zeigen die typischen Merkmale, keine Fotos.
 
+Die Lerninhalte sind mit den Guides von [Plonk It](https://www.plonkit.net/) (CC BY-NC-SA 4.0) und
+[GeoHints](https://geohints.com/) abgeglichen; die Texte sind eigene Zusammenfassungen.
 Die Lerninhalte stehen in `geo/src/data/` (`countries.js`, `categories.js`, `regions.js`, `basics.js`).
 GeoGuessr-Merkmale ändern sich gelegentlich (neue Kamerafahrten, neue Poller), deshalb sind die Inhalte
 bewusst einfach anpassbar gehalten.

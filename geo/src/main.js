@@ -232,6 +232,7 @@ function renderBasics() {
         <ul class="look">${b.points.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
       </section>`,
     ).join('')}
+    <p class="sources">Quellen der Lerninhalte: <a href="https://www.plonkit.net/" target="_blank" rel="noopener">Plonk It</a> und <a href="https://geohints.com/" target="_blank" rel="noopener">GeoHints</a> – die Texte sind eigene Zusammenfassungen, die Zeichnungen vereinfacht. Dort findest du Fotos zu jedem Merkmal.</p>
     <h2 class="section-title">Weiter mit</h2>
     <section class="cont-grid">
       ${CATEGORIES.slice(0, 6)

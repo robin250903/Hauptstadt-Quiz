@@ -653,3 +653,10 @@ a.btn {
   height: 15px;
   border-radius: 3px;
 }
+
+.sources {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 4px 4px 0;
+  line-height: 1.45;
+}

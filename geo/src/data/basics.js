@@ -47,7 +47,8 @@ export const BASICS = [
     points: [
       'Die Kamera-Generation (Gen 2, 3, 4) erkennt man an Bildschärfe, Farben und Verschwommenheit. In manchen Ländern gibt es nur bestimmte Generationen – das schränkt die Auswahl ein.',
       'Unten im Bild ist oft ein Stück des Google-Autos zu sehen: Farbe, Dachträger, Antennen oder ein Schnorchel.',
-      'Ein Schnorchel (Luftansaugrohr) am Auto: typisch für Kenia, gesehen auch in Senegal und Nigeria.',
+      'Ein Schnorchel (Luftansaugrohr) am Auto: in Gen 4 nur in Kenia und der Mongolei.',
+      'Sichtbare Pick-ups und Dachträger: z. B. Nigeria, Senegal, Ghana (Gen 3: Dachträger mit schwarzem Klebeband), Mongolei (oft mit Zelt). In Kampala (Uganda) fährt ein weißes, kastenförmiges Auto.',
       'Bilder ohne Auto, mit sichtbarem Rucksack oder auf Wanderwegen stammen vom „Trekker“ (Rucksack-Kamera) oder von Nutzern.',
       'Achtung: Auto-Hinweise ändern sich, wenn Google neue Bilder aufnimmt – lieber mit anderen Hinweisen bestätigen.',
     ],
