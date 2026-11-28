@@ -7,6 +7,7 @@ import { COUNTRIES, COUNTRY_BY_ID } from '../geo/src/data/countries.js';
 import { CATEGORIES } from '../geo/src/data/categories.js';
 import { REGIONS } from '../geo/src/data/regions.js';
 import * as quiz from '../geo/src/quiz.js';
+import { checkTyped, choicesFor } from '../geo/src/answers.js';
 
 // Reproduzierbarer Zufall
 function seeded(seed) {
@@ -28,7 +29,7 @@ test('jedes Land hat Name, Flagge und vollständige Daten', () => {
   }
 });
 
-test('Merkmale verweisen nur auf bekannte Länder und haben genug falsche Antworten', () => {
+test('Merkmale verweisen nur auf bekannte Länder', () => {
   for (const cat of CATEGORIES) {
     if (cat.kind !== 'items') continue;
     const ids = new Set();
@@ -37,36 +38,68 @@ test('Merkmale verweisen nur auf bekannte Länder und haben genug falsche Antwor
       ids.add(it.id);
       for (const c of it.c) assert.ok(COUNTRY_BY_ID[c], `${cat.id}:${it.id} – unbekanntes Land ${c}`);
       assert.ok(it.v && it.cap && it.text, `${cat.id}:${it.id} unvollständig`);
-      const pool = quiz.distractorPool(cat, it);
-      assert.ok(pool.length >= quiz.OPTION_COUNT - 1, `${cat.id}:${it.id} – zu wenige falsche Antworten`);
-      for (const p of pool) assert.ok(!it.c.includes(p) && !(it.amb || []).includes(p), `${cat.id}:${it.id} – ${p} ist mehrdeutig`);
     }
   }
 });
 
-test('Quizfragen haben genau eine richtige, eindeutige Antwort', () => {
-  for (let seed = 1; seed <= 25; seed++) {
-    const rnd = seeded(seed);
-    for (const cat of CATEGORIES) {
-      for (const q of quiz.buildCategoryQuestions(cat.id, rnd, 0)) {
-        const n = q.binary ? 2 : quiz.OPTION_COUNT;
-        assert.equal(q.options.length, n, q.key);
-        assert.equal(new Set(q.options.map((o) => o.id)).size, n, `${q.key}: doppelte Antworten`);
-        assert.ok(q.correct >= 0 && q.correct < n, q.key);
-        // keine falsche Antwort darf ebenfalls auf das Merkmal passen
-        const right = q.options[q.correct].id;
-        for (const o of q.options) if (o.id !== right) assert.ok(!(q.also || []).includes(o.id), `${q.key}: ${o.id} passt auch`);
+test('Quizfragen sind vollständig', () => {
+  for (const cat of CATEGORIES) {
+    for (const q of quiz.buildCategoryQuestions(cat.id, seeded(3), 0)) {
+      assert.ok(q.key && q.prompt && q.explain && q.answer, q.key);
+      assert.ok(['country', 'drive'].includes(q.kind), q.key);
+      assert.ok(q.accept.length >= 1, q.key);
+    }
+  }
+});
+
+test('Jede Frage lässt sich mit jedem richtigen Land beantworten', () => {
+  for (const cat of CATEGORIES) {
+    for (const q of quiz.buildCategoryQuestions(cat.id, seeded(1), 0)) {
+      const choices = choicesFor(q, []);
+      for (const id of q.accept) {
+        const label = choices.find((c) => c.id === id).label;
+        assert.equal(checkTyped(label, q.accept, choices).result, 'exact', `${q.key}: ${label}`);
       }
     }
   }
 });
 
+test('Eingetippte Länder: Tippfehler, andere Sprachen, falsche Länder', () => {
+  const choices = choicesFor({ kind: 'country' }, []);
+  const t = (input, accept) => checkTyped(input, accept, choices).result;
+  assert.equal(t('deutschland', ['de']), 'exact');
+  assert.equal(t('Germany', ['de']), 'exact');
+  assert.equal(t('Deutchland', ['de']), 'close');
+  assert.equal(t('oesterreich', ['at']), 'exact');
+  assert.equal(t('USA', ['us']), 'exact');
+  assert.equal(t('UK', ['gb']), 'exact');
+  assert.equal(t('Grossbritannien', ['gb']), 'exact');
+  assert.equal(t('Kolumbien', ['co', 'il']), 'exact');
+  assert.equal(t('Israel', ['co', 'il']), 'exact');
+  assert.equal(t('Österreich', ['de']), 'wrong');
+  assert.equal(t('Schweden', ['ch']), 'wrong'); // ähnlich wie „Schweiz“, aber ein anderes Land
+  assert.equal(t('', ['de']), 'wrong');
+  assert.equal(t('Bananenland', ['de']), 'wrong');
+});
+
+test('Fahrseite und Regionen eintippen', () => {
+  const drive = choicesFor({ kind: 'drive' }, []);
+  assert.equal(checkTyped('links', ['L'], drive).result, 'exact');
+  assert.equal(checkTyped('Rechtsverkehr', ['L'], drive).result, 'wrong');
+  const us = REGIONS.us.regions;
+  const reg = choicesFor({ kind: 'region' }, us);
+  const plains = String(us.findIndex((r) => r.n === 'Great Plains'));
+  assert.equal(checkTyped('great plains', [plains], reg).result, 'exact');
+  assert.equal(checkTyped('Grate Plains', [plains], reg).result, 'close');
+  const br = REGIONS.br.regions;
+  const cerrado = String(br.findIndex((r) => r.n.includes('Cerrado')));
+  assert.equal(checkTyped('Cerrado', [cerrado], choicesFor({ kind: 'region' }, br)).result, 'exact');
+});
+
 test('Domain- und Vorwahl-Fragen: gleiche Werte werden zusammengefasst', () => {
   const tel = quiz.buildCategoryQuestions('vorwahlen', seeded(3), 0);
   const plus1 = tel.find((q) => q.key === 'vorwahlen:+1');
-  assert.ok(plus1.also.length >= 3, '+1 gilt für mehrere Länder');
-  const wrong = plus1.options.filter((_, i) => i !== plus1.correct).map((o) => o.id);
-  for (const id of ['us', 'ca', 'pr', 'do']) assert.ok(!wrong.includes(id));
+  for (const id of ['us', 'ca', 'pr', 'do']) assert.ok(plus1.accept.includes(id));
 });
 
 test('Regionen: gültige Koordinaten und Quiz', () => {
@@ -80,7 +113,11 @@ test('Regionen: gültige Koordinaten und Quiz', () => {
     }
     const qs = quiz.buildRegionQuestions(id, seeded(7));
     assert.equal(qs.length, data.regions.length);
-    for (const q of qs) assert.equal(q.options[q.correct].label, data.regions[q.map.region].n);
+    const choices = choicesFor({ kind: 'region' }, data.regions);
+    for (const q of qs) {
+      assert.equal(q.answer, data.regions[q.map.region].n);
+      assert.equal(checkTyped(q.answer, q.accept, choices).result, 'exact', `${id}: ${q.answer}`);
+    }
   }
 });
 

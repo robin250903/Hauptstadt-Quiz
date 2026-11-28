@@ -11,12 +11,12 @@
 //
 // Item-Felder:
 //   id     eindeutig innerhalb der Kategorie
-//   c      Länder, auf die das Merkmal zutrifft (jedes davon ist eine richtige Antwort)
+//   c      Länder, auf die das Merkmal zutrifft (jedes davon gilt im Quiz als richtige Antwort)
 //   v      Illustration (siehe visuals.js)
 //   cap    kurze Beschreibung zur Illustration (wird auch in der Frage gezeigt)
 //   text   Erklärung (Lernkarte und Auflösung)
-//   pool   Länder, aus denen falsche Antworten gewählt werden (sonst: alle Länder der Kategorie)
-//   amb    Länder, die als falsche Antwort NICHT vorkommen dürfen, weil das Merkmal dort auch vorkommt
+//   pool, amb  aus der früheren Version mit Auswahl-Antworten (ähnliche bzw. mehrdeutige Länder);
+//              im Quiz mit Eintippen derzeit nicht genutzt, als Notiz zu Verwechslungsgefahren behalten
 
 const W = '#f6f6f2';
 const K = '#151515';
