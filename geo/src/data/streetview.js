@@ -20,12 +20,12 @@ export const STREETVIEW = {
     "pano": "OteIwj4-wJSQIE7ZoqX2MQ"
   },
   "linien:gelbe-raender": {
-    "lat": -31.198678,
-    "lng": 24.647106,
-    "h": 115.3,
-    "p": -13.2,
-    "fov": 42,
-    "pano": "37MllEGSVC5FUq6IpfzMXg"
+    "lat": -24.415969,
+    "lng": 23.67101,
+    "h": 284.2,
+    "p": -5.3,
+    "fov": 29,
+    "pano": "0F5qBdpHmcVMK3AoJUnikg"
   },
   "linien:chile": {
     "lat": -36.151399,
@@ -52,12 +52,12 @@ export const STREETVIEW = {
     "pano": "_MOzQ94SL-aXtdHaI__glQ"
   },
   "linien:thailand": {
-    "lat": 18.702054,
-    "lng": 99.045117,
-    "h": 170.3,
-    "p": -2.3,
-    "fov": 87,
-    "pano": "zAFJnH1E1KW5FmFzFXRw-Q"
+    "lat": 19.18607,
+    "lng": 98.69175,
+    "h": 162.2,
+    "p": -6.8,
+    "fov": 33,
+    "pano": "kAr8y926M1e2oqjcoqSQrw"
   },
   "linien:malaysia": {
     "lat": 1.9399,
@@ -74,14 +74,6 @@ export const STREETVIEW = {
     "p": -37.6,
     "fov": 88,
     "pano": "rMiMHM6lKKI2jzc8ibv9Kw"
-  },
-  "linien:uk-bordstein": {
-    "lat": 52.636775,
-    "lng": -1.12257,
-    "h": 113.4,
-    "p": -3.0,
-    "fov": 15,
-    "pano": "IwtC2sLCvMjLY8jXhVP8yw"
   },
   "poller:de": {
     "lat": 52.789405,
@@ -107,22 +99,6 @@ export const STREETVIEW = {
     "fov": 15,
     "pano": "P2AQCFN4_cgn9bhdyeoGUQ"
   },
-  "poller:lt": {
-    "lat": 54.637015,
-    "lng": 24.178108,
-    "h": 188.7,
-    "p": -18.3,
-    "fov": 90,
-    "pano": "h2U88n7gHo-QlxnLYmbfPQ"
-  },
-  "poller:lv": {
-    "lat": 57.031463,
-    "lng": 24.705938,
-    "h": 314.8,
-    "p": -15.6,
-    "fov": 15,
-    "pano": "aPOH_7etad9NkNOTlnI_Qw"
-  },
   "poller:ee": {
     "lat": 59.081886,
     "lng": 25.170809,
@@ -140,20 +116,12 @@ export const STREETVIEW = {
     "pano": "fHpk72OKP0OgUYKkwfFYUg"
   },
   "poller:dk": {
-    "lat": 55.282432,
-    "lng": 11.715437,
-    "h": 172.0,
-    "p": -22.8,
-    "fov": 18,
-    "pano": "Ey_sQ_8g8E6CVWz6ygtjfg"
-  },
-  "poller:be": {
-    "lat": 51.08797,
-    "lng": 4.193155,
-    "h": 170.6,
-    "p": -15.5,
-    "fov": 15,
-    "pano": "wbL5nO9tOhXB37QDxV3wcQ"
+    "lat": 56.046088,
+    "lng": 12.501796,
+    "h": 161.7,
+    "p": -12.1,
+    "fov": 20,
+    "pano": "g8smnsMFtdPegtQJVpJu4g"
   },
   "poller:weiss-rot": {
     "lat": 53.402746,
@@ -234,14 +202,6 @@ export const STREETVIEW = {
     "p": -19.8,
     "fov": 18,
     "pano": "4XOgYXhdqJfvgD9Gm7uHYg"
-  },
-  "poller:mx": {
-    "lat": 18.193904,
-    "lng": -103.09947,
-    "h": 350.3,
-    "p": -12.2,
-    "fov": 21,
-    "pano": "PmudtF2yndRKgnrUtsHIIQ"
   },
   "poller:tw": {
     "lat": 22.741558,
@@ -348,12 +308,12 @@ export const STREETVIEW = {
     "pano": "5lhJHp3bn7bMpsWZg81SCA"
   },
   "masten:stobie": {
-    "lat": -34.863883,
-    "lng": 138.594176,
-    "h": 290.2,
-    "p": 10.1,
-    "fov": 65,
-    "pano": "lEA_7OTDdbpgVgecCaZxkQ"
+    "lat": -34.938838,
+    "lng": 138.671021,
+    "h": 115.2,
+    "p": 26.2,
+    "fov": 16,
+    "pano": "Mlx-8PXyQz8oVMI-NSrAEw"
   },
   "masten:ru": {
     "lat": 56.10005,
@@ -386,22 +346,6 @@ export const STREETVIEW = {
     "p": 11.7,
     "fov": 15,
     "pano": "U_MKKPw66_Sg-CrImnG08A"
-  },
-  "masten:fr": {
-    "lat": 45.288828,
-    "lng": 1.891515,
-    "h": 355.3,
-    "p": -9.2,
-    "fov": 18,
-    "pano": "a5v6X3yZK7yj2nvUYgU8MQ"
-  },
-  "schilder:gelbes-dreieck": {
-    "lat": 53.583214,
-    "lng": 20.300466,
-    "h": 92.4,
-    "p": -1.6,
-    "fov": 18,
-    "pano": "GZYFzW1MKjIbXSdiyL3Vkw"
   },
   "schilder:raute-europa": {
     "lat": 53.28821,
@@ -443,14 +387,6 @@ export const STREETVIEW = {
     "fov": 75,
     "pano": "a1NrjtWehDakdpEpAbss0g"
   },
-  "schilder:chev-blau-weiss": {
-    "lat": 48.715033,
-    "lng": 2.266437,
-    "h": 264.3,
-    "p": -7.9,
-    "fov": 15,
-    "pano": "7CZBrD2fQiiTdw1hVo6WRg"
-  },
   "schilder:chev-blau-gelb": {
     "lat": 59.742205,
     "lng": 18.393394,
@@ -468,12 +404,12 @@ export const STREETVIEW = {
     "pano": "PsAooSyDq6DX50fRNnwEXQ"
   },
   "schilder:chev-schwarz-weiss": {
-    "lat": 53.280088,
-    "lng": -0.720259,
-    "h": 1.4,
-    "p": -3.2,
-    "fov": 15,
-    "pano": "pLZvtLPzoKoXQkWeLQ-aSA"
+    "lat": 47.546093,
+    "lng": 8.547877,
+    "h": 142.9,
+    "p": -2.6,
+    "fov": 42,
+    "pano": "_o2t21cQ1ReaDGsNbxBXJg"
   },
   "schilder:chev-ar": {
     "lat": -35.615739,
@@ -483,14 +419,6 @@ export const STREETVIEW = {
     "fov": 18,
     "pano": "fEPJanLyDhukatgAB0h8Ww"
   },
-  "schilder:br-chevron": {
-    "lat": -20.44467,
-    "lng": -45.878228,
-    "h": 171.3,
-    "p": -4.5,
-    "fov": 15,
-    "pano": "3dXoMlVPEd1tM-jKHGshhQ"
-  },
   "schilder:ped-pl": {
     "lat": 52.204953,
     "lng": 21.168425,
@@ -498,14 +426,6 @@ export const STREETVIEW = {
     "p": 0.5,
     "fov": 18,
     "pano": "EZARkj9dHjaIWhzjB-ymlQ"
-  },
-  "schilder:ped-ch": {
-    "lat": 47.474026,
-    "lng": 8.050791,
-    "h": 355.3,
-    "p": 1.1,
-    "fov": 15,
-    "pano": "qb-1uwoO4jwFuYpDwvxJHw"
   },
   "schilder:ped-es": {
     "lat": 41.518803,
@@ -530,13 +450,5 @@ export const STREETVIEW = {
     "p": -10.8,
     "fov": 24,
     "pano": "EJmpCVYZJE5PTYevixPukw"
-  },
-  "schilder:interstate": {
-    "lat": 31.665582,
-    "lng": -111.062351,
-    "h": 191.8,
-    "p": 0.9,
-    "fov": 18,
-    "pano": "nnHH1ziqVaeahjIFwXKbuw"
   }
 };

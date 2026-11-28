@@ -769,3 +769,34 @@ a.btn {
   text-align: right;
   color: var(--muted);
 }
+
+.sv-auto,
+.lc-visual .sv-frame {
+  width: 100%;
+}
+.lc-visual .sv-frame {
+  margin: 0;
+  border-radius: 0;
+}
+.sv-auto {
+  aspect-ratio: 4 / 3;
+  display: grid;
+  place-items: center;
+  background: var(--bg-2);
+}
+.sv-loading {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.fb-live {
+  margin-top: 14px;
+}
+.fb-live-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.fb-live .sv-frame,
+.fb-live .sv-auto {
+  border-radius: 12px;
+  overflow: hidden;
+}
