@@ -124,6 +124,32 @@ function openStreetView(btn) {
   btn.remove();
 }
 
+/** Street View als Hauptbild: wird erst geladen, wenn die Karte ins Bild scrollt */
+const hasEmbed = (key) => !!(MAPS_EMBED_KEY && STREETVIEW[key]);
+const svAuto = (key) => `<div class="sv-auto" data-sv-auto="${esc(key)}"><div class="sv-loading">🌍 Street View wird geladen …</div></div>`;
+
+const svObserver =
+  'IntersectionObserver' in window
+    ? new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            svObserver.unobserve(e.target);
+            e.target.outerHTML = svFrame(e.target.dataset.svAuto);
+          }
+        },
+        { rootMargin: '300px 0px' },
+      )
+    : null;
+
+new MutationObserver(() => {
+  document.querySelectorAll('.sv-auto:not([data-armed])').forEach((el) => {
+    el.dataset.armed = '1';
+    if (svObserver) svObserver.observe(el);
+    else el.outerHTML = svFrame(el.dataset.svAuto);
+  });
+}).observe(document.body, { childList: true, subtree: true });
+
 /** Echtes Foto (Wikimedia Commons) mit Bildnachweis – sonst die Zeichnung */
 function media(key, v, { credit = true } = {}) {
   const ph = PHOTOS[key];
@@ -146,14 +172,17 @@ function countryChips(ids, link = true) {
 }
 
 function itemCard(cat, it, highlight) {
+  const key = `${cat.id}:${it.id}`;
+  // Hauptbild: Foto > Street View > Zeichnung
+  const live = !PHOTOS[key] && hasEmbed(key);
   return `
     <article class="learn-card" style="--c:${cat.color}" data-sv-host>
-      <div class="lc-visual ${PHOTOS[`${cat.id}:${it.id}`] ? 'has-photo' : ''}">${media(`${cat.id}:${it.id}`, it.v)}</div>
+      <div class="lc-visual ${PHOTOS[key] || live ? 'has-photo' : ''}">${live ? svAuto(key) : media(key, it.v)}</div>
       <div class="lc-body">
         <div class="lc-cap">${esc(it.cap)}</div>
         ${highlight ? `<div class="lc-cat">${cat.emoji} ${esc(cat.title)}</div>` : countryChips(it.c)}
         <p>${esc(it.text)}</p>
-        ${svButton(`${cat.id}:${it.id}`)}
+        ${live ? '' : svButton(key)}
       </div>
     </article>`;
 }
@@ -729,10 +758,11 @@ function answer(i) {
         <div class="fb-title">${ok ? 'Richtig!' : `Leider falsch – richtig ist ${esc(right.label)}`}</div>
         <div class="fb-explain">${esc(qq.explain)}</div>
         ${also}
-        <div class="fb-sv" data-sv-host>${svButton(qq.key, '🌍 Echtes Beispiel in Street View')}</div>
+        ${hasEmbed(qq.key) ? '' : `<div class="fb-sv" data-sv-host>${svButton(qq.key, '🌍 Echtes Beispiel in Street View')}</div>`}
       </div>
     </div>
-    <button class="btn primary big next" data-action="next">${run.index + 1 >= run.qs.length ? 'Zum Ergebnis' : 'Weiter →'}</button>`;
+    <button class="btn primary big next" data-action="next">${run.index + 1 >= run.qs.length ? 'Zum Ergebnis' : 'Weiter →'}</button>
+    ${hasEmbed(qq.key) ? `<div class="fb-live"><div class="fb-live-title">🌍 So sieht das in echt aus:</div>${svAuto(qq.key)}</div>` : ''}`;
   if (qq.map && ui.visual.querySelector('svg')) ui.visual.innerHTML = regionMap(qq, ok ? 'ok' : 'bad');
   updateHud();
   persistRun();

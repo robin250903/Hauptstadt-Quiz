@@ -96,7 +96,7 @@ export const PHOTOS = {
   "masten:mx": {
     "file": "masten-mx.jpg",
     "title": "File:Basurerotultitlan.JPG",
-    "author": "siehe Commons",
+    "author": "No machine-readable author provided. Pithertsu assumed (based on copyright claim",
     "license": "Public domain",
     "page": "https://commons.wikimedia.org/wiki/File:Basurerotultitlan.JPG",
     "w": 480,
@@ -398,5 +398,14 @@ export const PHOTOS = {
     "page": "https://commons.wikimedia.org/wiki/File:Stobie_Pole_in_Norwood_September_2025.jpg",
     "w": 480,
     "h": 640
+  },
+  "kennzeichen:tr": {
+    "file": "kennzeichen-tr.jpg",
+    "title": "File:License plate of Turkey (Istanbul) US-size.jpg",
+    "author": "Walser.FL",
+    "license": "CC0",
+    "page": "https://commons.wikimedia.org/wiki/File:License_plate_of_Turkey_(Istanbul)_US-size.jpg",
+    "w": 480,
+    "h": 263
   }
 };
