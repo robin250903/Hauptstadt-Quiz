@@ -43,7 +43,7 @@ Hauptstadt-Quiz aus verlinkt.
 - **Länder und Regionen:** 99 Länder mit Steckbrief (Fahrseite, Domain, Vorwahl, Sprache, Schrift, wichtigste
   Merkmale). Für 24 Länder gibt es zusätzlich eine Karte mit Regionen und Hinweisen, wie man die Region
   erkennt (z. B. USA: gebirgiger Westen, flache Great Plains, rote Erde im Südosten). Dazu je ein Regionen-Quiz.
-- **Quiz:** Multiple Choice mit Zeichnung und Erklärung nach jeder Antwort, Mix-Quiz über alle Kategorien,
+- **Quiz:** Antwort eintippen – ohne Vorschläge (Land, Links/Rechts oder Region; Tippfehler, englische Namen und Kurzformen wie „USA“ zählen), mit Erklärung nach jeder Antwort, Mix-Quiz über alle Kategorien,
   Bestenliste (Top 5), Pausieren und Fortsetzen, Fehler üben und Lernfortschritt pro Kategorie.
 - **Echte Fotos** von [Wikimedia Commons](https://commons.wikimedia.org/) (freie Lizenzen, Urheber und Lizenz
   stehen unter jedem Bild und auf der Seite „Bildnachweise“). Die Bilder liegen in `public/geo/img/`, die

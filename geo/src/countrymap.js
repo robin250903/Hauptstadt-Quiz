@@ -76,7 +76,7 @@ export function countryMapSvg(id, { pins = [], view, w = 360, h = 260 } = {}) {
       const cls = p.state || '';
       const num = p.num ?? i + 1;
       const label = p.label
-        ? `<text class="cm-label" x="${x}" y="${(+y + (+y > h - 34 ? -18 : 22)).toFixed(1)}" text-anchor="middle">${p.label.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])}</text>`
+        ? `<text class="cm-label" x="${Math.max(70, Math.min(w - 70, +x)).toFixed(1)}" y="${(+y + (+y > h - 34 ? -18 : 22)).toFixed(1)}" text-anchor="middle">${p.label.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c])}</text>`
         : '';
       return `<g class="cm-pin ${cls}" transform="translate(${x} ${y})"><circle r="${cls ? 11 : 9}"/>${cls === 'hint' ? '' : `<text dy="4" text-anchor="middle">${cls === 'ok' ? '✓' : cls === 'bad' ? '✗' : num}</text>`}</g>${label}`;
     })

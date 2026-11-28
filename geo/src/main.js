@@ -11,6 +11,8 @@ import { STREETVIEW } from './data/streetview.js';
 import { MAPS_EMBED_KEY } from './config.js';
 import { loadShapes, countryMapSvg } from './countrymap.js';
 import * as quiz from './quiz.js';
+import { checkTyped, choicesFor } from './answers.js';
+import { diffWords } from '../../src/matching.js';
 import * as store from './storage.js';
 
 // Gemeinsame Dateien (Flaggen, Karten) liegen eine Ebene höher beim Hauptstadt-Quiz
@@ -610,13 +612,10 @@ function leaveQuiz() {
 
 function onQuizKey(e) {
   if (!run || !quizUi || document.querySelector('.modal-backdrop')) return;
-  if (run.phase === 'feedback' && (e.key === 'Enter' || e.key === ' ')) {
+  // Enter außerhalb des Eingabefelds (z. B. nach Klick auf die Karte) → weiter
+  if (run.phase === 'feedback' && e.key === 'Enter' && e.target !== quizUi.input) {
     e.preventDefault();
     nextQuestion();
-  } else if (run.phase === 'ask' && /^[1-4]$/.test(e.key)) {
-    const q = run.qs[run.index];
-    const i = +e.key - 1;
-    if (i < q.options.length) answer(i);
   }
 }
 
@@ -625,6 +624,12 @@ function renderQuiz() {
     const saved = store.loadRun();
     if (!saved) return go('#start');
     run = { ...saved };
+  }
+  // Gespeicherte Runde aus der alten Version mit Auswahl-Antworten → verwerfen
+  if (!run.qs?.every((q) => Array.isArray(q.accept))) {
+    store.clearRun();
+    run = null;
+    return go('#start');
   }
   root.innerHTML = `
   <main class="quiz geo-quiz" style="--c:${run.color || '#0f9d74'}">
@@ -646,7 +651,14 @@ function renderQuiz() {
       <div class="q-cap"></div>
       <h2 class="q-prompt"></h2>
     </section>
-    <section class="q-options"></section>
+    <section class="q-answer">
+      <form class="answer-form" autocomplete="off">
+        <input class="answer" type="text" name="answer" autocomplete="off" autocorrect="off" autocapitalize="words"
+          spellcheck="false" enterkeyhint="send" aria-label="Antwort" />
+        <button class="btn primary submit" type="submit">OK</button>
+      </form>
+      <div class="ask-actions"><button class="btn ghost small" data-action="skip" type="button">Weiß ich nicht</button></div>
+    </section>
     <section class="q-feedback" aria-live="polite"></section>
   </main>`;
 
@@ -655,7 +667,10 @@ function renderQuiz() {
     visual: q('.q-visual'),
     cap: q('.q-cap'),
     prompt: q('.q-prompt'),
-    options: q('.q-options'),
+    form: q('.answer-form'),
+    input: q('.answer'),
+    submit: q('.submit'),
+    skip: q('[data-action="skip"]'),
     feedback: q('.q-feedback'),
     num: q('.q-num'),
     bar: q('.bar-fill'),
@@ -665,11 +680,21 @@ function renderQuiz() {
     timeStat: q('.s-time').parentElement,
   };
 
+  const ui = quizUi;
+  ui.form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (run.phase === 'feedback') nextQuestion();
+    else answer(ui.input.value);
+  });
+  // Während die Auflösung steht, bleibt die Tastatur offen, aber die Eingabe ist gesperrt
+  ui.input.addEventListener('beforeinput', (e) => {
+    if (run && run.phase === 'feedback' && e.inputType !== 'insertLineBreak') e.preventDefault();
+  });
   root.onclick = (e) => {
-    const t = e.target.closest('[data-action],[data-opt]');
+    const t = e.target.closest('[data-action]');
     if (!t) return;
-    if (t.dataset.opt !== undefined) return answer(+t.dataset.opt);
     if (t.dataset.action === 'next') nextQuestion();
+    else if (t.dataset.action === 'skip') answer('');
     else if (t.dataset.action === 'quit') quitQuiz();
   };
   document.addEventListener('keydown', onQuizKey);
@@ -718,55 +743,62 @@ function showQuestion() {
   ui.cap.innerHTML = qq.clues ? `<ul class="clues">${qq.clues.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : qq.cap ? esc(qq.cap) : '';
   ui.cap.style.display = ui.cap.innerHTML ? '' : 'none';
   ui.prompt.textContent = qq.prompt;
-  ui.options.className = `q-options ${qq.binary ? 'binary' : ''} ${qq.options.some((o) => o.flag) ? 'with-flags' : ''}`;
-  ui.options.innerHTML = qq.options
-    .map(
-      (o, i) => `<button class="opt" data-opt="${i}">
-        <span class="opt-key">${i + 1}</span>
-        ${o.flag ? flagImg(o.flag, 'opt-flag') : o.icon ? `<span class="opt-icon">${o.icon}</span>` : ''}
-        <span class="opt-label">${esc(o.label)}</span>
-      </button>`,
-    )
-    .join('');
+  ui.input.value = '';
+  ui.input.className = 'answer';
+  ui.input.placeholder = qq.kind === 'drive' ? 'Links oder rechts …' : qq.kind === 'region' ? 'Region eingeben …' : 'Land eingeben …';
+  ui.submit.textContent = 'OK';
+  ui.skip.parentElement.style.display = '';
   ui.feedback.innerHTML = '';
   updateHud();
-  // Flaggen der nächsten Frage vorladen
-  run.qs[run.index + 1]?.options.forEach((o) => o.flag && (new Image().src = flagUrl(o.flag)));
+  if (matchMedia('(pointer: fine)').matches || document.activeElement === ui.input) ui.input.focus({ preventScroll: true });
 }
 
-function answer(i) {
+const answerFlags = (qq, ids) => (qq.kind === 'country' ? ids.map((id) => `${flagImg(id)} ${esc(name(id))}`).join(', ') : '');
+
+function answer(value) {
   if (!run || run.phase !== 'ask') return;
   const ui = quizUi;
   const qq = run.qs[run.index];
-  const ok = i === qq.correct;
+  const res = checkTyped(value, qq.accept, choicesFor(qq, REGIONS[qq.country]?.regions || []));
+  const ok = res.result !== 'wrong';
   pauseTimer();
   run.phase = 'feedback';
-  run.answers.push({ key: qq.key, choice: i, ok });
+  run.answers.push({ key: qq.key, input: value.trim(), result: res.result, match: res.match, ok });
   if (!run.practice || ok) store.recordAnswer(qq.key, ok);
 
-  ui.options.querySelectorAll('.opt').forEach((b, j) => {
-    b.disabled = true;
-    if (j === qq.correct) b.classList.add('right');
-    else if (j === i) b.classList.add('wrong');
-  });
-  const right = qq.options[qq.correct];
-  const also = qq.also?.length ? `<div class="fb-note">Passt auch: ${qq.also.map((a) => `${flagImg(a)} ${esc(name(a))}`).join(', ')}</div>` : '';
+  ui.input.classList.add(res.result);
+  ui.submit.textContent = 'Weiter →';
+  ui.skip.parentElement.style.display = 'none';
+
+  const others = ok ? qq.accept.filter((id) => id !== res.id) : [];
+  const also = qq.kind === 'country' && others.length ? `<div class="fb-note">Passt auch: ${answerFlags(qq, others)}</div>` : '';
+  const rightText = qq.kind === 'country' ? answerFlags(qq, qq.accept) : `<b>${esc(qq.answer)}</b>`;
+  let head;
+  if (res.result === 'exact') head = `<div class="fb-title">Richtig!</div>`;
+  else if (res.result === 'close') {
+    const d = diffWords(value.trim(), res.match);
+    const part = (p) => (p.diff ? `<mark>${esc(p.text)}</mark>` : esc(p.text));
+    head = `<div class="fb-title">Fast richtig – zählt!</div>
+      <div class="fb-typed">Deine Eingabe: <span class="typo">${d.typed.map(part).join('')}</span></div>
+      <div class="fb-answer">Richtig geschrieben: <b class="fixed">${d.correct.map(part).join('')}</b></div>`;
+  } else {
+    head = `<div class="fb-title">${value.trim() ? 'Leider falsch' : 'Auflösung'}</div>
+      <div class="fb-answer">Richtig ist: ${rightText}</div>`;
+  }
   ui.feedback.innerHTML = `
-    <div class="fb ${ok ? 'exact' : 'wrong'}">
+    <div class="fb ${res.result}">
       <span class="fb-icon">${ok ? '✓' : '✗'}</span>
       <div>
-        <div class="fb-title">${ok ? 'Richtig!' : `Leider falsch – richtig ist ${esc(right.label)}`}</div>
-        <div class="fb-explain">${esc(qq.explain)}</div>
+        ${head}
         ${also}
+        <div class="fb-explain">${esc(qq.explain)}</div>
         ${hasEmbed(qq.key) ? '' : `<div class="fb-sv" data-sv-host>${svButton(qq.key, '🌍 Echtes Beispiel in Street View')}</div>`}
       </div>
     </div>
-    <button class="btn primary big next" data-action="next">${run.index + 1 >= run.qs.length ? 'Zum Ergebnis' : 'Weiter →'}</button>
     ${hasEmbed(qq.key) ? `<div class="fb-live"><div class="fb-live-title">🌍 So sieht das in echt aus:</div>${svAuto(qq.key)}</div>` : ''}`;
   if (qq.map && ui.visual.querySelector('svg')) ui.visual.innerHTML = regionMap(qq, ok ? 'ok' : 'bad');
   updateHud();
   persistRun();
-  ui.feedback.querySelector('.next').focus({ preventScroll: true });
   ui.feedback.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
@@ -833,13 +865,12 @@ function renderResult() {
 
   const row = (a) => {
     const q = a.q;
-    const right = q.options[q.correct];
-    const picked = q.options[a.choice];
+    const right = q.kind === 'country' ? q.accept.map((id) => `${flagImg(id)}${esc(name(id))}`).join(', ') : esc(q.answer);
     return `<li>
       <div class="m-vis">${q.map ? '🗺️' : q.subject ? flagImg(q.subject, 'm-flag') : q.v?.type === 'text' ? `<span class="m-txt">${esc(q.v.text)}</span>` : media(q.key, q.v, { credit: false })}</div>
       <div class="m-text">
         <div class="m-country">${esc(q.cap || q.prompt)}</div>
-        <div class="m-answer"><s>${esc(picked.label)}</s> → <b>${right.flag ? flagImg(right.flag) : ''}${esc(right.label)}</b></div>
+        <div class="m-answer">${a.input ? `<s>${esc(a.input)}</s> → ` : ''}<b>${right}</b></div>
       </div>
     </li>`;
   };
